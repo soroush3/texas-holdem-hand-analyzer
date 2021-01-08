@@ -1,23 +1,14 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import PokerHand from "./components/PokerHand";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1> TEXAS HOLDEM HAND ANALYZER</h1>
+      <h3>
+        Determines the % win of each hand based off of a complete poker hand
+      </h3>
+      <PokerHand></PokerHand>
     </div>
   );
 }
