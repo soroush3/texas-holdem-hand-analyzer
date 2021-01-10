@@ -17,7 +17,6 @@ function PlayerHand(props) {
   function handleClick() {
     props.deleteHand(props.card1, props.card2);
   }
-
   return (
     <div className="player-hand-container">
       <div>
@@ -28,7 +27,8 @@ function PlayerHand(props) {
         <Card playerHand={true} key={props.card1} value={props.card1}></Card>
         <Card playerHand={true} key={props.card2} value={props.card2}></Card>
       </div>
-      <div>Percentage: </div>
+      <div>Percentage: {props.percentage}</div>
+      <div>Hand: {props.handType} </div>
     </div>
   );
 }
@@ -36,7 +36,6 @@ function PlayerHand(props) {
 export default class PokerHand extends Component {
   constructor(props) {
     super(props);
-
     const rankings = [
       "A",
       "K",
@@ -65,10 +64,31 @@ export default class PokerHand extends Component {
     this.state = {
       deckOfCards: deckOfCards,
       rankings: rankings,
+      suits: suits,
       communityCards: [],
       playerHands: [],
+      percentages: new Map(),
     };
   }
+
+  reset = () => {
+    const deck = this.state.deckOfCards;
+
+    deck.clear();
+
+    for (let rank of this.state.rankings) {
+      for (let suit of this.state.suits) {
+        deck.add(rank + " " + suit);
+      }
+    }
+
+    this.setState({
+      deckOfCards: deck,
+      communityCards: [],
+      playerHands: [],
+    });
+  };
+
   // delete Community Card
   deleteCC = (deletedCard) => {
     // add card back to deck
@@ -116,25 +136,28 @@ export default class PokerHand extends Component {
   addPlayerHand = () => {
     let pc1 = document.getElementById("selectPC1").value;
     let pc2 = document.getElementById("selectPC2").value;
-    if (this.state.playerHands.length < 22 && pc1 !== pc2) {
+    if (this.state.playerHands.length < 10 && pc1 !== pc2) {
       // get state, playerHand arr and deck set
       const playerHands = this.state.playerHands;
       const deck = this.state.deckOfCards;
+
       // remove the selected cards from deck set
       deck.delete(pc1);
       deck.delete(pc2);
       // push the new player hand to the player hand arr
-      playerHands.push(
-        <PlayerHand
-          key={pc1 + " " + pc2}
-          deleteHand={this.deletePlayerHand}
-          card1={pc1}
-          card2={pc2}
-          isPlayerHand={true}
-        ></PlayerHand>
-      );
-      // set the state of the deck and player hands
-      this.setState({ playerHands: playerHands, deckOfCards: deck });
+      let newPlayer = {
+        card1: pc1,
+        card2: pc2,
+        percentage: null,
+        handType: null,
+      };
+
+      playerHands.push(newPlayer);
+
+      this.setState({
+        playerHands: playerHands,
+        deckOfCards: deck,
+      });
     }
   };
 
@@ -144,10 +167,7 @@ export default class PokerHand extends Component {
 
     // find the player hand and remove it
     for (let i = 0; i < playerHands.length; ++i) {
-      if (
-        playerHands[i].props.card1 === c1 &&
-        playerHands[i].props.card2 === c2
-      ) {
+      if (playerHands[i].card1 === c1 && playerHands[i].card2 === c2) {
         playerHands.splice(i, 1);
         break;
       }
@@ -162,8 +182,21 @@ export default class PokerHand extends Component {
     });
   };
 
+  renderPlayerHand(playerHand) {
+    return (
+      <PlayerHand
+        key={playerHand.card1 + " " + playerHand.card2}
+        deleteHand={this.deletePlayerHand}
+        card1={playerHand.card1}
+        card2={playerHand.card2}
+        isPlayerHand={true}
+        percentage={playerHand.percentage}
+        handType={playerHand.handType}
+      ></PlayerHand>
+    );
+  }
+
   render() {
-    calculatePercentages();
     const deckOfCards = Array.from(this.state.deckOfCards);
     deckOfCards.sort((a, b) => {
       return (
@@ -174,6 +207,11 @@ export default class PokerHand extends Component {
 
     return (
       <div className="App">
+        <div>
+          <button onClick={this.reset}>Reset</button>
+          <button onClick={this.calculatePercentages}> Calculate </button>
+        </div>
+
         <div style={{ margin: "10px" }}>
           <button onClick={(e) => this.addCC(e.target.value)}>
             Add Community Card
@@ -225,17 +263,30 @@ export default class PokerHand extends Component {
         </div>
         <div>
           {this.state.playerHands.map((playerHand) => {
-            return playerHand;
+            return this.renderPlayerHand(playerHand);
           })}
         </div>
       </div>
     );
   }
+
+  calculatePercentages = () => {
+    if (this.state.communityCards.length !== 5) {
+      alert("5 cards must be on the community board");
+      return;
+    }
+    const playerHands = this.state.playerHands;
+    for (let i = 0; i < playerHands.length; ++i) {
+      const c1 = playerHands[i].card1;
+      const c2 = playerHands[i].card2;
+      playerHands[i].percentage = 50;
+    }
+    this.setState({
+      playerHands: playerHands,
+    });
+  };
 }
 
-function calculatePercentages() {
-  console.log("CALCULATE");
-}
 /*
   Royal Flush
   Straight Flush
