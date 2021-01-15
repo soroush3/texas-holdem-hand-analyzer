@@ -41,20 +41,10 @@ function PlayerHand(props) {
 export default class PokerHand extends Component {
   constructor(props) {
     super(props);
+    // prettier-ignore
     const rankings = [
-      "Ace",
-      "King",
-      "Queen",
-      "Jack",
-      "10",
-      "9",
-      "8",
-      "7",
-      "6",
-      "5",
-      "4",
-      "3",
-      "2",
+      "Ace", "King", "Queen", "Jack", 
+      "10", "9", "8", "7", "6", "5", "4", "3", "2",
     ];
     const suits = ["Spades", "Hearts", "Clubs", "Diamonds"];
 
@@ -280,24 +270,87 @@ export default class PokerHand extends Component {
   }
 
   calculatePercentages = () => {
+    // check if community cards has all 5 cards
     if (this.state.communityCards.length !== 5) {
       alert("5 cards must be on the community board");
       return;
     }
+    // check if there is at least one player hand
+    if (this.state.playerHands === 0) return;
+    // grab the needed state values
     const playerHands = this.state.playerHands;
-    const board = this.state.communityCards.slice();
-    // const handType = [];
+    const board = this.state.communityCards;
+    const playersHandTypeArr = [];
+    // iterate through each players hands
     for (let i = 0; i < playerHands.length; ++i) {
+      // grab the 5 cards on the board and the players 2 card hand
       let handOf7 = [];
       const c1 = playerHands[i].card1;
       const c2 = playerHands[i].card2;
-      playerHands[i].percentage = 50;
       handOf7.push(c1, c2, ...board);
-
+      // call function to determine the players Hand
+      // final hand: { 'handType': string, 'topCards': arr}
       const finalHand = this.determineHandType(handOf7);
+      // add this information to an array for processing
+      playersHandTypeArr.push({ finalHand: finalHand, index: i });
+      // update the values of the player hand object for re rendering
       playerHands[i].handType = finalHand.handType;
       playerHands[i].topCards = finalHand.topCards;
     }
+    // sort the array based on hand rank, break ties by comparing the
+    // top cards from each persons hand
+    let rankMap = new Map();
+    playersHandTypeArr.sort((a, b) => {
+      if (a.finalHand.handRank !== b.finalHand.handRank)
+        return a.finalHand.handRank - b.finalHand.handRank;
+      else {
+        for (
+          let i = 0;
+          i < a.finalHand.topCards.length && i < b.finalHand.topCards.length;
+          ++i
+        ) {
+          const aCardRank = a.finalHand.topCards[i].split(" ")[0];
+          const bCardRank = b.finalHand.topCards[i].split(" ")[0];
+          if (aCardRank !== bCardRank) {
+            return (
+              this.state.rankings.indexOf(aCardRank) -
+              this.state.rankings.indexOf(bCardRank)
+            );
+          }
+        }
+        // if we reach here, the top card rankings are the same i.e. the two
+        // hands tied
+        if (!rankMap.has(a.finalHand.handRank)) {
+          rankMap.set(a.finalHand.handRank, new Set());
+        }
+        rankMap.get(a.finalHand.handRank).add(a.index);
+        rankMap.get(b.finalHand.handRank).add(b.index);
+
+        return 0;
+      }
+    });
+    // reset the winning percentages of all hands
+    for (let i = 0; i < playerHands.length; ++i) {
+      playerHands[i].percentage = 0;
+    }
+    // process the percentages based on the sorting done above
+    const rankOfHand = playersHandTypeArr[0].finalHand.handRank;
+    const indexOfHand = playersHandTypeArr[0].index;
+
+    // index 0 of the array (playersHandTypeArr) is either the complete winner
+    // or it is tied for first with other players
+    if (!rankMap.has(rankOfHand) || !rankMap.get(rankOfHand).has(indexOfHand)) {
+      // this player is the singular winner of the poker hand
+      playerHands[indexOfHand].percentage = 100;
+    } else {
+      // the player index 0 is tied for first
+      const setOfPlayersWhoWon = rankMap.get(rankOfHand);
+      const numOfPlayers = setOfPlayersWhoWon.size;
+      for (const playerIndex of setOfPlayersWhoWon) {
+        playerHands[playerIndex].percentage = 100 / numOfPlayers;
+      }
+    }
+
     this.setState({
       playerHands: playerHands,
     });
