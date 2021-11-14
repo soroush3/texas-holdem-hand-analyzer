@@ -4,11 +4,13 @@ function Card(props) {
   function deleteCard() {
     props.onDelete(props.value);
   }
-
+  const [rank, suit] = props.value.split(" ");
+  const color = ["♥︎", "♦︎"].includes(suit) ? "red" : "black";
   return (
-    <div className="card">
+    <div className="card" style={{ color: color }}>
       {!props.playerHand && <button onClick={deleteCard}>Delete Card</button>}
-      <div>{props.value}</div>
+      <div>{rank}</div>
+      <div>{suit}</div>
     </div>
   );
 }
@@ -46,7 +48,8 @@ export default class PokerHand extends Component {
       "Ace", "King", "Queen", "Jack", 
       "10", "9", "8", "7", "6", "5", "4", "3", "2",
     ];
-    const suits = ["Spades", "Hearts", "Clubs", "Diamonds"];
+    const suits = ["♠︎", "♥︎", "♣︎", "♦︎"];
+    // const suits = ["Spades", "Hearts", "Clubs", "Diamonds"];
 
     const deckOfCards = new Set();
 

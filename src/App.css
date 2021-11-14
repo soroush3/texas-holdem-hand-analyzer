@@ -2,10 +2,44 @@
   text-align: center;
 }
 
+.allCardsContainer {
+  user-select: none;
+  display: flex;
+  justify-content: center;
+}
+
+.ccAndPlayer {
+  max-width: 460px;
+}
+
+.playerHandsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.playerHandContainer {
+  margin: 1rem;
+}
+
+.playerHand {
+  display: flex;
+  justify-content: center;
+}
+
+.deckOfCards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 240px;
+  max-height: 500px;
+  margin-right: 3rem;
+}
+
 .top-cards {
   display: inline-block;
   width: 350px;
-  /* font-weight: bolder; */
+  font-weight: bolder;
 }
 
 .mDiv {
@@ -13,9 +47,10 @@
   align-items: center;
 }
 
-.community-board {
-  border: 3px solid black;
-  display: inline-flex;
+.communityBoard {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .player-hand-container {
@@ -30,11 +65,59 @@
   margin: 10px;
 }
 
-.card {
+.card:hover,
+.card::selection,
+.cardDeck:hover,
+.focusedCard {
+  box-shadow: 0 0 1vh rgb(0, 117, 206);
+  transition: all 0.1s;
+  transform: scale(1.1, 1.1);
+}
+
+.card:not(:hover),
+.cardDeck:not(:hover) {
+  transition: all 0.1s ease;
+}
+
+.disabledCard {
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.cardDeck {
+  justify-content: center;
+  /* display: inline-block; */
+  overflow: hidden;
+  text-align: center;
+  font-size: medium;
+  border: 1px solid black;
+  width: 3rem;
+  height: 3rem;
+  margin: 5px;
+  border-radius: 0.3cm;
+  cursor: pointer;
+}
+
+.communityCard {
+  overflow: hidden;
   text-align: center;
   font-size: xx-large;
   border: 2px solid black;
-  width: 150px;
-  height: 200px;
-  margin: 10px;
+  width: 4rem;
+  height: 5rem;
+  margin: 0.75rem;
+  border-radius: 0.5cm;
+  cursor: pointer;
+}
+
+.playerCard {
+  overflow: hidden;
+  text-align: center;
+  font-size: medium;
+  border: 2px solid black;
+  width: 2.5rem;
+  height: 3rem;
+  margin: 0 0.5rem 0.5rem 0;
+  border-radius: 0.3cm;
+  cursor: pointer;
 }
