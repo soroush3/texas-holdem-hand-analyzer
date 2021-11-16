@@ -10,7 +10,7 @@ const CommunityCards = ({
       <h3> Community Cards </h3>
       <div className="communityBoard">
         {communityCards.map((card, i) => {
-          const focusedCardClass = focusedCard === i ? " focusedCard" : "";
+          const focusedCardClass = focusedCard.idx === i ? " focusedCard" : "";
           const isEmpty = communityCards[i] === null;
           const rank = isEmpty ? "" : card.rank;
           const suit = isEmpty ? "" : card.suit;
