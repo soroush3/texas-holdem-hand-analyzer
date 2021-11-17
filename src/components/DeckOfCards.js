@@ -1,6 +1,7 @@
 import React from "react";
 
 const DeckOfCards = ({ deckOfCards, handleDeckClick, usedCards }) => {
+  console.log("Deck Render");
   return (
     <div className="deckOfCards">
       <h3 style={{ alignItems: "flex-end", justifyContent: "center" }}>

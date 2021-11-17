@@ -1,6 +1,7 @@
 import React from "react";
 
 const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
+  console.log("Player hands Render");
   return (
     <div className="playerHandsContainer">
       {playerHands.map((hand, i) => {

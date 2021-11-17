@@ -9,7 +9,7 @@
 }
 
 .ccAndPlayer {
-  max-width: 460px;
+  flex-basis: 500px;
 }
 
 .playerHandsContainer {
@@ -31,9 +31,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 240px;
-  max-height: 500px;
-  margin-right: 3rem;
+  flex-basis: 260px;
+  margin-right: 2rem;
 }
 
 .top-cards {

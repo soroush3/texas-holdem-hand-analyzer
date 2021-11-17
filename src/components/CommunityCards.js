@@ -5,6 +5,7 @@ const CommunityCards = ({
   handleCommunityCardClick,
   focusedCard,
 }) => {
+  console.log("COMMUNITY CARD RENDER");
   return (
     <div>
       <h3> Community Cards </h3>

@@ -1,35 +1,13 @@
 import "./App.css";
 import { useState, useCallback } from "react";
+import deckOfCards from "./utils/CardDeck.js";
 import CommunityCards from "./components/CommunityCards.js";
 import DeckOfCards from "./components/DeckOfCards.js";
 import PlayerHands from "./components/PlayerHands.js";
-
-const rankings = [
-  "A",
-  "K",
-  "Q",
-  "J",
-  "10",
-  "9",
-  "8",
-  "7",
-  "6",
-  "5",
-  "4",
-  "3",
-  "2",
-];
-
-const suits = ["♣︎", "♠︎", "♥︎", "♦︎"];
-let i = 0;
-let deckOfCards = [];
-for (let rank of rankings) {
-  for (let suit of suits) {
-    deckOfCards.push({ rank: rank, suit: suit, position: i++ });
-  }
-}
+import DetermineWinner from "./utils/DetermineWinner.js";
 
 function App() {
+  console.log("APP Render");
   const [communityCards, setCommunityCards] = useState(Array(5).fill(null));
   const [usedCards, setUsedCards] = useState(new Set());
   const [focusedCard, setFocusedCard] = useState({ idx: 0, card: null });
@@ -49,6 +27,10 @@ function App() {
       { card1: null, card2: null },
     ]);
   }, []);
+
+  const handleCalculateClick = useCallback(() => {
+    DetermineWinner(communityCards, playerHands);
+  }, [communityCards, playerHands]);
 
   const updateFocusedCard = useCallback(() => {
     for (let i = focusedCard.idx; i < focusedCard.idx + 5 + numPlayers; ++i) {
@@ -111,6 +93,7 @@ function App() {
       setNumPlayers(nInt);
       setUsedCards(newUsedCards);
       setPlayerHands(newPlayerHands);
+      updateFocusedCard();
     },
     [playerHands, usedCards]
   );
@@ -215,7 +198,12 @@ function App() {
         <button onClick={() => handleReset()} style={{ marginLeft: 1 + "rem" }}>
           Reset
         </button>
-        <button style={{ marginLeft: 1 + "rem" }}> Calculate </button>
+        <button
+          onClick={() => handleCalculateClick()}
+          style={{ marginLeft: 1 + "rem" }}
+        >
+          Calculate
+        </button>
       </div>
       <div className="allCardsContainer">
         <DeckOfCards
