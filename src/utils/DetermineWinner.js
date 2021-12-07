@@ -17,13 +17,19 @@ import { rankings, suits } from "./CardDeck";
 */
 
 /**
-  Modular functions determine each of the hand types
+  Modular functions determine each of the hand types.
+
+  If the function determines it is of that hand type, 
+  it will return the top 5 cards as a list.
+  
+  Otherwise, it will return an empty list.
 */
 
 /**
-  Determines if the hand is a royal flush.
-  A royal flush consists of Ace, King, Queen, Jack, and 10 all of
-  the same suit
+  Determines if the hand is a Royal Flush.
+
+  A Royal Flush consists of Ace, King, Queen, Jack, and 10 all of
+  the same suit.
 */
 const isRoyalFlush = (handOf7) => {
   let royalCards = [];
@@ -37,22 +43,30 @@ const isRoyalFlush = (handOf7) => {
 };
 
 /**
-  Determines if the hand if a flush.
-  A flush consists of 5 cards with the same suit
+  Determines if the hand if a Flush.
+
+  A Flush consists of 5 cards with the same suit.
 */
 const isFlush = (handOf7) => {
   let suitMap = new Map();
   for (const card of handOf7) {
     const suit = card.suit;
     suitMap.set(suit, (suitMap.get(suit) ?? 0) + 1);
-    if (suitMap.get(suit) === 5) return true;
+    if (suitMap.get(suit) === 5) {
+      let top5 = [];
+      for (const card of handOf7) {
+        if (card.suit === suit) top5.push(card);
+      }
+      return top5;
+    }
   }
-  return false;
+  return [];
 };
 
 /**
   Determine if the hand is a straight flush.
-  5 cards that are in sequence and have the same suit
+
+  5 cards that are in sequence and have the same suit.
 */
 const isStraightFlush = (handOf7) => {
   const suitMap = new Map();
@@ -60,63 +74,64 @@ const isStraightFlush = (handOf7) => {
     suitMap.set(suit, []);
   });
   for (const card of handOf7) {
-    const { suit, rank } = card;
-    suitMap.get(suit).push(rank);
+    suitMap.get(card.suit).push(card);
   }
 
-  for (const rankList of suitMap.values()) {
-    if (rankList.length >= 5) {
-      let count = 0;
-      for (let i = 1; i < rankList.length; ++i) {
-        const card1RankIdx = rankings.indexOf(rankList[i - 1]);
-        const card2RankIdx = rankings.indexOf(rankList[i]);
+  for (const cardList of suitMap.values()) {
+    if (cardList.length >= 5) {
+      let top5 = new Set();
+      for (let i = 1; i < cardList.length; ++i) {
+        const card1RankIdx = rankings.indexOf(cardList[i - 1].rank);
+        const card2RankIdx = rankings.indexOf(cardList[i].rank);
 
-        if (card2RankIdx - card1RankIdx === 1) ++count;
-        else if (card2RankIdx - card1RankIdx !== 0) count = 0;
+        if (card2RankIdx - card1RankIdx === 1) {
+          top5.add(cardList[i - 1]);
+          top5.add(cardList[i]);
+        } else top5.clear();
       }
-      if (count === 4) return true;
+
+      if (top5.size === 5) return [...top5];
       // need to determine if Ace low straight, Ace low straight can only be
-      // Ace -> 2 -> 3 -> 4 -> 5
-      let aceLowCount = 0;
-      for (const rank of ["A", "2", "3", "4", "5"]) {
-        if (
-          rankList.findIndex((cardRank) => {
-            return cardRank === rank;
-          }) !== -1
-        ) {
-          ++aceLowCount;
-        }
+      // 5 -> 4 -> 3 -> 2 -> A
+      top5.clear();
+      for (const rank of ["5", "4", "3", "2", "A"]) {
+        const idx = cardList.findIndex((card) => {
+          return card.rank === rank;
+        });
+        if (idx !== -1) top5.add(cardList[idx]);
       }
-      if (aceLowCount === 5) return true;
+      if (top5.size === 5) {
+        return [...top5];
+      }
     }
   }
-  return false;
+  return [];
 };
 
 /**
-  Determines if there are five cards in a sequence
+  Determines if there are five cards in a sequence based on card rank.
 */
 const isStraight = (handOf7) => {
-  let count = 0;
+  let top5 = new Set();
   for (let i = 1; i < handOf7.length; ++i) {
     const card1RankIdx = rankings.indexOf(handOf7[i - 1].rank);
     const card2RankIdx = rankings.indexOf(handOf7[i].rank);
-    if (card2RankIdx - card1RankIdx === 1) ++count;
-    else if (card2RankIdx - card1RankIdx !== 0) count = 0;
-    if (count === 4) return true;
+    if (card2RankIdx - card1RankIdx === 1) {
+      top5.add(handOf7[i - 1]);
+      top5.add(handOf7[i]);
+    } else if (card2RankIdx - card1RankIdx !== 0) top5.clear();
+    if (top5.size === 5) return [...top5];
   }
   // need to determine if Ace low straight, Ace low straight can only be
-  // Ace -> 2 -> 3 -> 4 -> 5
-  let aceLowCount = 0;
-  for (const rank of ["A", "2", "3", "4", "5"]) {
-    if (
-      handOf7.findIndex((card) => {
-        return card.rank === rank;
-      }) !== -1
-    )
-      ++aceLowCount;
+  // 5 -> 4 -> 3 -> 2 -> A
+  top5.clear();
+  for (const rank of ["5", "4", "3", "2", "A"]) {
+    const idx = handOf7.findIndex((card) => {
+      return card.rank === rank;
+    });
+    if (idx !== -1) top5.add(handOf7[idx]);
   }
-  return aceLowCount === 5;
+  return top5.size === 5 ? [...top5] : [];
 };
 
 /**
@@ -126,30 +141,41 @@ const isFourOfAKind = (handOf7) => {
   let rankMap = new Map();
   for (const card of handOf7) {
     const rank = card.rank;
-    rankMap.set(rank, (rankMap.get(rank) ?? 0) + 1);
-    if (rankMap.get(rank) === 4) return true;
+    if (!rankMap.has(rank)) rankMap.set(rank, []);
+    rankMap.get(rank).push(card);
+    if (rankMap.get(rank).length === 4) {
+      let top5 = [...rankMap.get(rank)];
+      for (const card of handOf7) {
+        if (card.rank !== rank) {
+          top5.push(card);
+          return top5;
+        }
+      }
+    }
   }
-  return false;
+  return [];
 };
 
 /**
   Determines if the hand contains three of a kind and a pair
 */
 const isFullHouse = (handOf7) => {
-  let two = false;
-  let three = false;
+  let two = [];
+  let three = [];
 
   const rankCount = new Map();
   for (const card of handOf7) {
-    const cardRank = card.rank;
-    rankCount.set(cardRank, (rankCount.get(cardRank) ?? 0) + 1);
+    if (!rankCount.has(card.rank)) {
+      rankCount.set(card.rank, []);
+    }
+    rankCount.get(card.rank).push(card);
   }
 
-  for (const count of rankCount.values()) {
-    if (count === 3) three = true;
-    else if (count === 2) two = true;
+  for (const cardList of rankCount.values()) {
+    if (cardList.length >= 3 && three.length === 0) three = cardList;
+    else if (cardList.length >= 2 && two.length === 0) two = cardList;
   }
-  return two && three;
+  return three.length && two.length ? [...three, ...two] : [];
 };
 
 /**
@@ -158,11 +184,19 @@ const isFullHouse = (handOf7) => {
 const isThreeOfAKind = (handOf7) => {
   let rankMap = new Map();
   for (const card of handOf7) {
-    const rank = card.rank;
-    rankMap.set(rank, (rankMap.get(rank) ?? 0) + 1);
-    if (rankMap.get(rank) === 3) return true;
+    if (!rankMap.has(card.rank)) rankMap.set(card.rank, []);
+    rankMap.get(card.rank).push(card);
+    if (rankMap.get(card.rank).length === 3) {
+      let top5 = [...rankMap.get(card.rank)];
+      for (const card2 of handOf7) {
+        if (card2.rank !== card.rank) {
+          top5.push(card2);
+        }
+        if (top5.length === 5) return top5;
+      }
+    }
   }
-  return false;
+  return [];
 };
 
 /**
@@ -170,26 +204,42 @@ const isThreeOfAKind = (handOf7) => {
 */
 const isTwoPair = (handOf7) => {
   let rankMap = new Map();
-  let pairCount = 0;
+  let top5 = [];
   for (const card of handOf7) {
-    const rank = card.rank;
-    rankMap.set(rank, (rankMap.get(rank) ?? 0) + 1);
-    if (rankMap.get(rank) === 2) ++pairCount;
+    if (!rankMap.has(card.rank)) rankMap.set(card.rank, []);
+    rankMap.get(card.rank).push(card);
+    if (rankMap.get(card.rank).length === 2) {
+      top5.push(...rankMap.get(card.rank));
+      if (top5.length === 4) {
+        for (const card of handOf7) {
+          if (top5.indexOf(card) === -1) {
+            top5.push(card);
+            return top5;
+          }
+        }
+      }
+    }
   }
-  return pairCount >= 2;
+  return [];
 };
 
 /**
-  Determines if the hand contains at least a pair
+  Determines if the hand contains a pair
 */
 const isPair = (handOf7) => {
   let rankMap = new Map();
   for (const card of handOf7) {
-    const rank = card.rank;
-    rankMap.set(rank, (rankMap.get(rank) ?? 0) + 1);
-    if (rankMap.get(rank) === 2) return true;
+    if (!rankMap.has(card.rank)) rankMap.set(card.rank, []);
+    rankMap.get(card.rank).push(card);
+    if (rankMap.get(card.rank).length === 2) {
+      let top5 = [...rankMap.get(card.rank)];
+      for (const card2 of handOf7) {
+        if (card2.rank !== card.rank) top5.push(card2);
+        if (top5.length === 5) return top5;
+      }
+    }
   }
-  return false;
+  return [];
 };
 
 const determineHandType = (handOf7) => {
@@ -198,38 +248,53 @@ const determineHandType = (handOf7) => {
   handOf7.sort((a, b) => {
     return rankings.indexOf(a.rank) - rankings.indexOf(b.rank);
   });
-
-  if (isRoyalFlush(handOf7)) {
-    return 1;
-  } else if (isStraightFlush(handOf7)) {
-    return 2;
-  } else if (isFourOfAKind(handOf7)) {
-    return 3;
-  } else if (isFullHouse(handOf7)) {
-    return 4;
-  } else if (isFlush(handOf7)) {
-    return 5;
-  } else if (isStraight(handOf7)) {
-    return 6;
-  } else if (isThreeOfAKind(handOf7)) {
-    return 7;
-  } else if (isTwoPair(handOf7)) {
-    return 8;
-  } else if (isPair(handOf7)) {
-    return 9;
-  } else {
-    // high card
-    return 10;
+  let result = isRoyalFlush(handOf7);
+  if (result.length) {
+    return { handRank: 1, top5: result };
   }
+  result = isStraightFlush(handOf7);
+  if (result.length) {
+    return { handRank: 2, top5: result };
+  }
+  result = isFourOfAKind(handOf7);
+  if (result.length) {
+    return { handRank: 3, top5: result };
+  }
+  result = isFullHouse(handOf7);
+  if (result.length) {
+    return { handRank: 4, top5: result };
+  }
+  result = isFlush(handOf7);
+  if (result.length) {
+    return { handRank: 5, top5: result };
+  }
+  result = isStraight(handOf7);
+  if (result.length) {
+    return { handRank: 6, top5: result };
+  }
+  result = isThreeOfAKind(handOf7);
+  if (result.length) {
+    return { handRank: 7, top5: result };
+  }
+  result = isTwoPair(handOf7);
+  if (result.length) {
+    return { handRank: 8, top5: result };
+  }
+  result = isPair(handOf7);
+  if (result.length) {
+    return { handRank: 9, top5: result };
+  }
+  // high card
+  return { handRank: 10, top5: handOf7.slice(0, 5) };
 };
 
 const DetermineWinner = (communityCards, playerHands) => {
   // check if community cards is complete (has 5 cards)
-  let ccCount = 0;
+  let cc_count = 0;
   for (const card of communityCards) {
-    if (card !== null) ++ccCount;
+    if (card !== null) ++cc_count;
   }
-  if (ccCount !== 5) {
+  if (cc_count !== 5) {
     alert("5 cards must be on the community board");
     return;
   }
@@ -257,10 +322,8 @@ const DetermineWinner = (communityCards, playerHands) => {
     const finalHand = determineHandType(handOf7);
     // add this information to an array for processing
     playersHandTypeArr.push({ finalHand: finalHand, playerIndex: i });
-    // update the values of the player hand object for re rendering
-    // playerHands[i].handType = finalHand.handType;
-    // playerHands[i].topCards = finalHand.topCards;
   }
+  // need to determine winner and break ties
   console.log(playersHandTypeArr);
   return;
   // sort the array based on hand rank, break ties by comparing the
