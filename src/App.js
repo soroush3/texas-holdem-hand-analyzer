@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import deckOfCards from "./utils/CardDeck.js";
 import CommunityCards from "./components/CommunityCards.js";
 import DeckOfCards from "./components/DeckOfCards.js";
@@ -7,7 +7,6 @@ import PlayerHands from "./components/PlayerHands.js";
 import DetermineWinner from "./utils/DetermineWinner.js";
 
 function App() {
-  console.log("APP Render");
   const [communityCards, setCommunityCards] = useState(Array(5).fill(null));
   const [usedCards, setUsedCards] = useState(new Set());
   const [focusedCard, setFocusedCard] = useState({ idx: 0, card: null });
@@ -17,27 +16,12 @@ function App() {
     { card1: null, card2: null },
   ]);
 
-  const handleReset = useCallback(() => {
-    setCommunityCards(Array(5).fill(null));
-    setUsedCards(new Set());
-    setFocusedCard({ idx: 0, card: null });
-    setNumPlayers(2);
-    setPlayerHands([
-      { card1: null, card2: null },
-      { card1: null, card2: null },
-    ]);
-  }, []);
-
-  const handleCalculateClick = useCallback(() => {
-    DetermineWinner(communityCards, playerHands);
-  }, [communityCards, playerHands]);
-
-  const updateFocusedCard = useCallback(() => {
+  const updateFocusedCard = () => {
     for (let i = focusedCard.idx; i < focusedCard.idx + 5 + numPlayers; ++i) {
       const trueIdx = i % (5 + numPlayers);
       if (trueIdx <= 4) {
         // position that was just updateded, skip it
-        if (focusedCard.idx === trueIdx) continue;
+        // if (focusedCard.idx === trueIdx) continue;
         // community card
         if (communityCards[trueIdx] === null) {
           setFocusedCard({ idx: trueIdx, card: null });
@@ -46,16 +30,10 @@ function App() {
       } else {
         const playerIdx = trueIdx - 5;
         // player card
-        if (
-          playerHands[playerIdx].card1 === null &&
-          (trueIdx !== focusedCard.idx || focusedCard.card !== 0)
-        ) {
+        if (playerHands[playerIdx].card1 === null) {
           setFocusedCard({ idx: playerIdx + 5, card: 0 });
           return;
-        } else if (
-          playerHands[playerIdx].card2 === null &&
-          (trueIdx !== focusedCard.idx || focusedCard.card !== 1)
-        ) {
+        } else if (playerHands[playerIdx].card2 === null) {
           setFocusedCard({ idx: playerIdx + 5, card: 1 });
           return;
         }
@@ -63,117 +41,124 @@ function App() {
     }
     // all positions are filled
     setFocusedCard({ idx: null, card: null });
-  }, [communityCards, focusedCard, numPlayers, playerHands]);
+  };
 
-  const updateNumberOfPlayers = useCallback(
-    (n) => {
-      const nInt = parseInt(n);
-      let newPlayerHands = [];
-      for (let i = 0; i < nInt; ++i) {
-        newPlayerHands.push({ card1: null, card2: null });
+  useEffect(() => {
+    // only update the focused card if the usedCards is changed or numplayers is changed
+    updateFocusedCard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usedCards, numPlayers]);
+
+  const handleReset = () => {
+    setCommunityCards(Array(5).fill(null));
+    setUsedCards(new Set());
+    setFocusedCard({ idx: 0, card: null });
+    setNumPlayers(2);
+    setPlayerHands([
+      { card1: null, card2: null },
+      { card1: null, card2: null },
+    ]);
+  };
+
+  const handleCalculateClick = () => {
+    DetermineWinner(communityCards, playerHands);
+  };
+
+  const updateNumberOfPlayers = (n) => {
+    const nInt = parseInt(n);
+    let newPlayerHands = [];
+    for (let i = 0; i < nInt; ++i) {
+      newPlayerHands.push({ card1: null, card2: null });
+    }
+    let newUsedCards = new Set(usedCards);
+    for (let i = 0; i < playerHands.length; ++i) {
+      // keep these hands
+      if (i < nInt) {
+        const hand = JSON.parse(JSON.stringify(playerHands[i]));
+        newPlayerHands[i] = hand;
+      } else {
+        // add the cards back to the deck
+        if (playerHands[i].card1 !== null) {
+          const pos = playerHands[i].card1.position;
+          newUsedCards.delete(pos);
+        }
+        if (playerHands[i].card2 !== null) {
+          const pos = playerHands[i].card2.position;
+          newUsedCards.delete(pos);
+        }
       }
+    }
+    setNumPlayers(nInt);
+    setUsedCards(newUsedCards);
+    setPlayerHands(newPlayerHands);
+  };
+
+  const handleDeckClick = (deckIndex) => {
+    if (!usedCards.has(deckIndex) && focusedCard.idx !== null) {
+      // update used cards set
       let newUsedCards = new Set(usedCards);
-      for (let i = 0; i < playerHands.length; ++i) {
-        // keep these hands
-        if (i < nInt) {
-          const hand = JSON.parse(JSON.stringify(playerHands[i]));
-          newPlayerHands[i] = hand;
-        } else {
-          // add the cards back to the deck
-          if (playerHands[i].card1 !== null) {
-            const pos = playerHands[i].card1.position;
-            newUsedCards.delete(pos);
-          }
-          if (playerHands[i].card2 !== null) {
-            const pos = playerHands[i].card2.position;
-            newUsedCards.delete(pos);
-          }
-        }
-      }
-      setNumPlayers(nInt);
+      newUsedCards.add(deckIndex);
       setUsedCards(newUsedCards);
-      setPlayerHands(newPlayerHands);
-      updateFocusedCard();
-    },
-    [playerHands, usedCards]
-  );
 
-  const handleDeckClick = useCallback(
-    (deckIndex) => {
-      if (!usedCards.has(deckIndex) && focusedCard.idx !== null) {
-        // update used cards set
-        let newUsedCards = new Set(usedCards);
-        newUsedCards.add(deckIndex);
-        setUsedCards(newUsedCards);
-
-        // update community card
-        if (focusedCard.idx <= 4) {
-          let newCC = [...communityCards];
-          newCC[focusedCard.idx] = deckOfCards[deckIndex];
-          setCommunityCards(newCC);
-        }
-        // update player card
-        else {
-          let newPlayerHands = playerHands.map((hand) => ({ ...hand }));
-          const playerIdx = focusedCard.idx - 5;
-          if (focusedCard.card === 0) {
-            newPlayerHands[playerIdx].card1 = deckOfCards[deckIndex];
-          } else if (focusedCard.card === 1) {
-            newPlayerHands[playerIdx].card2 = deckOfCards[deckIndex];
-          }
-          setPlayerHands(newPlayerHands);
-        }
-        updateFocusedCard();
-      }
-    },
-    [communityCards, focusedCard, playerHands, updateFocusedCard, usedCards]
-  );
-  const handleCommunityCardClick = useCallback(
-    (cardIndex) => {
-      // check if there is a card already present in position, remove if true
-      if (communityCards[cardIndex] !== null) {
-        // update community cards
+      // update community card
+      if (focusedCard.idx <= 4) {
         let newCC = [...communityCards];
-        const cardPosition = newCC[cardIndex].position;
-        newCC[cardIndex] = null;
+        newCC[focusedCard.idx] = deckOfCards[deckIndex];
         setCommunityCards(newCC);
-
-        // update used cards
-        let newUsedCards = new Set(usedCards);
-        newUsedCards.delete(cardPosition);
-        setUsedCards(newUsedCards);
       }
-      setFocusedCard({ idx: cardIndex, card: null });
-    },
-    [communityCards, usedCards]
-  );
-
-  const handlePlayerCardClick = useCallback(
-    (playerIdx, cardIdx) => {
-      // check if there is a card already present in position, remove if true
-      if (
-        (playerHands[playerIdx].card1 !== null && cardIdx === 0) ||
-        (playerHands[playerIdx].card2 !== null && cardIdx === 1)
-      ) {
+      // update player card
+      else {
         let newPlayerHands = playerHands.map((hand) => ({ ...hand }));
-        let cardToAddBack = null;
-        if (cardIdx === 0) {
-          cardToAddBack = newPlayerHands[playerIdx].card1.position;
-          newPlayerHands[playerIdx].card1 = null;
-        } else if (cardIdx === 1) {
-          cardToAddBack = newPlayerHands[playerIdx].card2.position;
-          newPlayerHands[playerIdx].card2 = null;
+        const playerIdx = focusedCard.idx - 5;
+        if (focusedCard.card === 0) {
+          newPlayerHands[playerIdx].card1 = deckOfCards[deckIndex];
+        } else if (focusedCard.card === 1) {
+          newPlayerHands[playerIdx].card2 = deckOfCards[deckIndex];
         }
-        // remove the card deckIndex as being used
-        let newUsedCards = new Set(usedCards);
-        newUsedCards.delete(cardToAddBack);
-        setUsedCards(newUsedCards);
         setPlayerHands(newPlayerHands);
       }
-      setFocusedCard({ idx: playerIdx + 5, card: cardIdx });
-    },
-    [playerHands, usedCards]
-  );
+    }
+  };
+  const handleCommunityCardClick = (cardIndex) => {
+    // check if there is a card already present in position, remove if true
+    if (communityCards[cardIndex] !== null) {
+      // update community cards
+      let newCC = [...communityCards];
+      const cardPosition = newCC[cardIndex].position;
+      newCC[cardIndex] = null;
+      setCommunityCards(newCC);
+
+      // update used cards
+      let newUsedCards = new Set(usedCards);
+      newUsedCards.delete(cardPosition);
+      setUsedCards(newUsedCards);
+    }
+    setFocusedCard({ idx: cardIndex, card: null });
+  };
+
+  const handlePlayerCardClick = (playerIdx, cardIdx) => {
+    // check if there is a card already present in position, remove if true
+    if (
+      (playerHands[playerIdx].card1 !== null && cardIdx === 0) ||
+      (playerHands[playerIdx].card2 !== null && cardIdx === 1)
+    ) {
+      let newPlayerHands = playerHands.map((hand) => ({ ...hand }));
+      let cardToAddBack = null;
+      if (cardIdx === 0) {
+        cardToAddBack = newPlayerHands[playerIdx].card1.position;
+        newPlayerHands[playerIdx].card1 = null;
+      } else if (cardIdx === 1) {
+        cardToAddBack = newPlayerHands[playerIdx].card2.position;
+        newPlayerHands[playerIdx].card2 = null;
+      }
+      // remove the card deckIndex as being used
+      let newUsedCards = new Set(usedCards);
+      newUsedCards.delete(cardToAddBack);
+      setUsedCards(newUsedCards);
+      setPlayerHands(newPlayerHands);
+    }
+    setFocusedCard({ idx: playerIdx + 5, card: cardIdx });
+  };
 
   return (
     <div className="App">

@@ -16,28 +16,31 @@ import { rankings, suits } from "./CardDeck";
   High card         10
 */
 
-/*
+/**
   Modular functions determine each of the hand types
 */
 
+/**
+  Determines if the hand is a royal flush.
+  A royal flush consists of Ace, King, Queen, Jack, and 10 all of
+  the same suit
+*/
 const isRoyalFlush = (handOf7) => {
-  /*
-    Determines if the hand is a royal flush
-    A royal flush consists of Ace, King, Queen, Jack, and 10 all of
-    the same suit
-  */
+  let royalCards = [];
   let setOfCards = new Set(["A", "K", "Q", "J", "10"]);
   for (const card of handOf7) {
-    setOfCards.delete(card.rank);
+    if (setOfCards.has(card.rank)) {
+      royalCards.push(card);
+    }
   }
-  return setOfCards.size === 0 && isFlush(handOf7);
+  return isFlush(royalCards);
 };
 
+/**
+  Determines if the hand if a flush.
+  A flush consists of 5 cards with the same suit
+*/
 const isFlush = (handOf7) => {
-  /*
-    Determines if the hand if a flush
-    a flush consists of 5 cards with the same suit
-  */
   let suitMap = new Map();
   for (const card of handOf7) {
     const suit = card.suit;
@@ -47,11 +50,11 @@ const isFlush = (handOf7) => {
   return false;
 };
 
+/**
+  Determine if the hand is a straight flush.
+  5 cards that are in sequence and have the same suit
+*/
 const isStraightFlush = (handOf7) => {
-  /*
-    Returns true if the hand is a straight flush
-    5 cards that are in sequence and have the same suit
-  */
   const suitMap = new Map();
   suits.forEach((suit) => {
     suitMap.set(suit, []);
@@ -90,10 +93,10 @@ const isStraightFlush = (handOf7) => {
   return false;
 };
 
+/**
+  Determines if there are five cards in a sequence
+*/
 const isStraight = (handOf7) => {
-  /*
-    Returns true if there are five cards in a sequence
-  */
   let count = 0;
   for (let i = 1; i < handOf7.length; ++i) {
     const card1RankIdx = rankings.indexOf(handOf7[i - 1].rank);
@@ -116,10 +119,10 @@ const isStraight = (handOf7) => {
   return aceLowCount === 5;
 };
 
+/**
+ * Determines if there are four cards of the same rank
+ */
 const isFourOfAKind = (handOf7) => {
-  /*
-    Returns true if there are four cards of the same rank
-  */
   let rankMap = new Map();
   for (const card of handOf7) {
     const rank = card.rank;
@@ -129,10 +132,10 @@ const isFourOfAKind = (handOf7) => {
   return false;
 };
 
+/**
+  Determines if the hand contains three of a kind and a pair
+*/
 const isFullHouse = (handOf7) => {
-  /*
-    Returns true if hand contains three of a kind with a pair
-  */
   let two = false;
   let three = false;
 
@@ -149,10 +152,10 @@ const isFullHouse = (handOf7) => {
   return two && three;
 };
 
+/**
+  Determines if the hand contains three cards of the same rank
+*/
 const isThreeOfAKind = (handOf7) => {
-  /*
-    Returns true if hand contains three cards of the same rank
-  */
   let rankMap = new Map();
   for (const card of handOf7) {
     const rank = card.rank;
@@ -162,10 +165,10 @@ const isThreeOfAKind = (handOf7) => {
   return false;
 };
 
+/**
+  Determines if the hand contains two different pairs
+*/
 const isTwoPair = (handOf7) => {
-  /*
-    Returns true if the hand contains at least two different pairs
-  */
   let rankMap = new Map();
   let pairCount = 0;
   for (const card of handOf7) {
@@ -176,10 +179,10 @@ const isTwoPair = (handOf7) => {
   return pairCount >= 2;
 };
 
+/**
+  Determines if the hand contains at least a pair
+*/
 const isPair = (handOf7) => {
-  /*
-    Returns true if the hand contains at least two different pairs
-  */
   let rankMap = new Map();
   for (const card of handOf7) {
     const rank = card.rank;
@@ -191,16 +194,6 @@ const isPair = (handOf7) => {
 
 const determineHandType = (handOf7) => {
   // given 7 cards, determines the highest ranking hand type
-  // pre processing
-  const suitCount = new Map();
-  const rankCount = new Map();
-  for (const suit of suits) {
-    suitCount.set(suit, []);
-  }
-
-  for (const rank of rankings) {
-    rankCount.set(rank, []);
-  }
   // sort by ranking A K Q ... 3 2
   handOf7.sort((a, b) => {
     return rankings.indexOf(a.rank) - rankings.indexOf(b.rank);
@@ -230,7 +223,6 @@ const determineHandType = (handOf7) => {
   }
 };
 
-// meat and potatos, everything below here does the calculation to determine who won the hand
 const DetermineWinner = (communityCards, playerHands) => {
   // check if community cards is complete (has 5 cards)
   let ccCount = 0;
