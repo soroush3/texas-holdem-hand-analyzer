@@ -6,14 +6,14 @@ import { rankings, suits } from "./CardDeck";
 
   Royal Flush       1
   Straight Flush    2
-  4 of a kind       3
+  4 Of A Kind       3
   Full House        4
   Flush             5
   Straight          6
-  3 of a kind       7
-  2 pair            8
-  pair              9
-  High card         10
+  3 Of A Kind       7
+  2 Pair            8
+  Pair              9
+  High Card         10
 */
 
 /**
@@ -21,8 +21,11 @@ import { rankings, suits } from "./CardDeck";
 
   If the function determines it is of that hand type, 
   it will return the top 5 cards as a list.
-  
+
   Otherwise, it will return an empty list.
+
+  handOf7 is sorted by rank, A, K, Q ...
+  most if not all of the functions depend on this
 */
 
 /**
@@ -54,9 +57,11 @@ const isFlush = (handOf7) => {
     suitMap.set(suit, (suitMap.get(suit) ?? 0) + 1);
     if (suitMap.get(suit) === 5) {
       let top5 = [];
-      for (const card of handOf7) {
-        if (card.suit === suit) top5.push(card);
+      for (const card2 of handOf7) {
+        if (card2.suit === suit) top5.push(card2);
       }
+      // make sure size is 5
+      top5.splice(5);
       return top5;
     }
   }
@@ -73,20 +78,22 @@ const isStraightFlush = (handOf7) => {
   suits.forEach((suit) => {
     suitMap.set(suit, []);
   });
+  // aggregate cards by suit
   for (const card of handOf7) {
     suitMap.get(card.suit).push(card);
   }
-
+  // go through suit arrays, determine if the cards in a given array forms a straight of 5 cards
   for (const cardList of suitMap.values()) {
     if (cardList.length >= 5) {
       let top5 = new Set();
       for (let i = 1; i < cardList.length; ++i) {
         const card1RankIdx = rankings.indexOf(cardList[i - 1].rank);
         const card2RankIdx = rankings.indexOf(cardList[i].rank);
-
+        // adjacent cards are sequential
         if (card2RankIdx - card1RankIdx === 1) {
           top5.add(cardList[i - 1]);
           top5.add(cardList[i]);
+          // not sequential
         } else top5.clear();
       }
 
@@ -112,24 +119,36 @@ const isStraightFlush = (handOf7) => {
   Determines if there are five cards in a sequence based on card rank.
 */
 const isStraight = (handOf7) => {
+  let uniqueRank = new Set();
+  let uniqueOf7 = [];
+  // remove duplicates of ranks
+  handOf7.forEach((card) => {
+    if (!uniqueRank.has(card.rank)) {
+      uniqueOf7.push(card);
+      uniqueRank.add(card.rank);
+    }
+  });
   let top5 = new Set();
-  for (let i = 1; i < handOf7.length; ++i) {
-    const card1RankIdx = rankings.indexOf(handOf7[i - 1].rank);
-    const card2RankIdx = rankings.indexOf(handOf7[i].rank);
+  //uniqueOf7 sorted by rank, see if the difference between adj cards is equal to 1
+  for (let i = 1; i < uniqueOf7.length; ++i) {
+    const card1RankIdx = rankings.indexOf(uniqueOf7[i - 1].rank);
+    const card2RankIdx = rankings.indexOf(uniqueOf7[i].rank);
+    // cards are sequential
     if (card2RankIdx - card1RankIdx === 1) {
-      top5.add(handOf7[i - 1]);
-      top5.add(handOf7[i]);
-    } else if (card2RankIdx - card1RankIdx !== 0) top5.clear();
+      top5.add(uniqueOf7[i - 1]);
+      top5.add(uniqueOf7[i]);
+      // cards are not sequential
+    } else top5.clear();
     if (top5.size === 5) return [...top5];
   }
   // need to determine if Ace low straight, Ace low straight can only be
   // 5 -> 4 -> 3 -> 2 -> A
   top5.clear();
   for (const rank of ["5", "4", "3", "2", "A"]) {
-    const idx = handOf7.findIndex((card) => {
+    const idx = uniqueOf7.findIndex((card) => {
       return card.rank === rank;
     });
-    if (idx !== -1) top5.add(handOf7[idx]);
+    if (idx !== -1) top5.add(uniqueOf7[idx]);
   }
   return top5.size === 5 ? [...top5] : [];
 };
@@ -143,8 +162,10 @@ const isFourOfAKind = (handOf7) => {
     const rank = card.rank;
     if (!rankMap.has(rank)) rankMap.set(rank, []);
     rankMap.get(rank).push(card);
+    // found a quad (four cards of same rank), proceed to return
     if (rankMap.get(rank).length === 4) {
       let top5 = [...rankMap.get(rank)];
+      // find the highest ranked card not in the quad array, add to top5
       for (const card of handOf7) {
         if (card.rank !== rank) {
           top5.push(card);
@@ -164,17 +185,21 @@ const isFullHouse = (handOf7) => {
   let three = [];
 
   const rankCount = new Map();
+  // aggregate cards based on rank
   for (const card of handOf7) {
     if (!rankCount.has(card.rank)) {
       rankCount.set(card.rank, []);
     }
     rankCount.get(card.rank).push(card);
   }
-
+  // find cards of three and cards of two
   for (const cardList of rankCount.values()) {
     if (cardList.length >= 3 && three.length === 0) three = cardList;
     else if (cardList.length >= 2 && two.length === 0) two = cardList;
   }
+  // make sure the return array is of size 5
+  three.splice(3);
+  two.splice(2);
   return three.length && two.length ? [...three, ...two] : [];
 };
 
@@ -186,8 +211,10 @@ const isThreeOfAKind = (handOf7) => {
   for (const card of handOf7) {
     if (!rankMap.has(card.rank)) rankMap.set(card.rank, []);
     rankMap.get(card.rank).push(card);
+    // found a three of a kind, proceed to return
     if (rankMap.get(card.rank).length === 3) {
       let top5 = [...rankMap.get(card.rank)];
+      // find the two highest ranked cards not in the triplet, add to top5
       for (const card2 of handOf7) {
         if (card2.rank !== card.rank) {
           top5.push(card2);
@@ -208,10 +235,14 @@ const isTwoPair = (handOf7) => {
   for (const card of handOf7) {
     if (!rankMap.has(card.rank)) rankMap.set(card.rank, []);
     rankMap.get(card.rank).push(card);
+    // found a pair of the hand of 7
     if (rankMap.get(card.rank).length === 2) {
+      // add to top 5
       top5.push(...rankMap.get(card.rank));
+      // if we found two pairs, return them
       if (top5.length === 4) {
         for (const card of handOf7) {
+          // add the highest ranked card not in the pairs to top 5
           if (top5.indexOf(card) === -1) {
             top5.push(card);
             return top5;
@@ -231,8 +262,10 @@ const isPair = (handOf7) => {
   for (const card of handOf7) {
     if (!rankMap.has(card.rank)) rankMap.set(card.rank, []);
     rankMap.get(card.rank).push(card);
+    // found the first pair of the hand of 7, return it immediately
     if (rankMap.get(card.rank).length === 2) {
       let top5 = [...rankMap.get(card.rank)];
+      // add the three highest ranked cards not in the pair to top5
       for (const card2 of handOf7) {
         if (card2.rank !== card.rank) top5.push(card2);
         if (top5.length === 5) return top5;
@@ -248,61 +281,82 @@ const determineHandType = (handOf7) => {
   handOf7.sort((a, b) => {
     return rankings.indexOf(a.rank) - rankings.indexOf(b.rank);
   });
-  let result = isRoyalFlush(handOf7);
-  if (result.length) {
-    return { handRank: 1, top5: result };
+  let top5 = isRoyalFlush(handOf7);
+  if (top5.length) {
+    return { handRank: 1, handType: "Royal Flush", top5: top5 };
   }
-  result = isStraightFlush(handOf7);
-  if (result.length) {
-    return { handRank: 2, top5: result };
+  top5 = isStraightFlush(handOf7);
+  if (top5.length) {
+    const highRank = top5[0].rank;
+    const handType = `Straight Flush, ${highRank} High`;
+    return { handRank: 2, handType: handType, top5: top5 };
   }
-  result = isFourOfAKind(handOf7);
-  if (result.length) {
-    return { handRank: 3, top5: result };
+  top5 = isFourOfAKind(handOf7);
+  if (top5.length) {
+    const highRank = top5[0].rank;
+    const handType = `Four Of A Kind, ${highRank}'s`;
+    return { handRank: 3, handType: handType, top5: top5 };
   }
-  result = isFullHouse(handOf7);
-  if (result.length) {
-    return { handRank: 4, top5: result };
+  top5 = isFullHouse(handOf7);
+  if (top5.length) {
+    const threeRank = top5[0].rank;
+    const twoRank = top5[top5.length - 1].rank;
+    const handType = `Full House, ${threeRank}'s Full Of ${twoRank}'s `;
+    return { handRank: 4, handType: handType, top5: top5 };
   }
-  result = isFlush(handOf7);
-  if (result.length) {
-    return { handRank: 5, top5: result };
+  top5 = isFlush(handOf7);
+  if (top5.length) {
+    const handRank = top5[0].rank;
+    const handType = `Flush, ${handRank} High`;
+    return { handRank: 5, handType: handType, top5: top5 };
   }
-  result = isStraight(handOf7);
-  if (result.length) {
-    return { handRank: 6, top5: result };
+  top5 = isStraight(handOf7);
+  if (top5.length) {
+    const handRank = top5[0].rank;
+    const handType = `Straight, ${handRank} High`;
+    return { handRank: 6, handType: handType, top5: top5 };
   }
-  result = isThreeOfAKind(handOf7);
-  if (result.length) {
-    return { handRank: 7, top5: result };
+  top5 = isThreeOfAKind(handOf7);
+  if (top5.length) {
+    const handRank = top5[0].rank;
+    const handType = `Three Of A Kind, ${handRank}'s`;
+    return { handRank: 7, handType: handType, top5: top5 };
   }
-  result = isTwoPair(handOf7);
-  if (result.length) {
-    return { handRank: 8, top5: result };
+  top5 = isTwoPair(handOf7);
+  if (top5.length) {
+    const firstPairRank = top5[0].rank;
+    const secondPairRank = top5[2].rank;
+    const handType = `Two Pair, ${firstPairRank}'s And ${secondPairRank}'s`;
+    return { handRank: 8, handType: handType, top5: top5 };
   }
-  result = isPair(handOf7);
-  if (result.length) {
-    return { handRank: 9, top5: result };
+  top5 = isPair(handOf7);
+  if (top5.length) {
+    const pairRank = top5[0].rank;
+    const handType = `Pair, ${pairRank}'s`;
+    return { handRank: 9, handType: handType, top5: top5 };
   }
   // high card
-  return { handRank: 10, top5: handOf7.slice(0, 5) };
+  const handType = `High Card, ${handOf7[0].rank} High`;
+  return { handRank: 10, handType: handType, top5: handOf7.slice(0, 5) };
 };
 
 const DetermineWinner = (communityCards, playerHands) => {
   // check if community cards is complete (has 5 cards)
   let cc_count = 0;
-  for (const card of communityCards) {
+  communityCards.forEach((card) => {
     if (card !== null) ++cc_count;
-  }
+  });
   if (cc_count !== 5) {
     alert("5 cards must be on the community board");
     return;
   }
   // check that all player hands are complete (each hand has two cards)
   let playerCount = 0;
-  for (const player of playerHands) {
-    if (player.card1 !== null && player.card2 !== null) ++playerCount;
-  }
+  playerHands.forEach((hand) => {
+    if (hand !== null && hand.card1 !== null && hand.card2 !== null)
+      ++playerCount;
+  });
+
   if (playerCount !== playerHands.length) {
     alert("Make sure that all player hands are complete");
     return;
@@ -323,11 +377,9 @@ const DetermineWinner = (communityCards, playerHands) => {
     // add this information to an array for processing
     playersHandTypeArr.push({ finalHand: finalHand, playerIndex: i });
   }
-  // need to determine winner and break ties
-  console.log(playersHandTypeArr);
-  return;
   // sort the array based on hand rank, break ties by comparing the
   // top cards from each persons hand
+  // key = hand type, val = player index
   let rankMap = new Map();
   playersHandTypeArr.sort((a, b) => {
     if (a.finalHand.handRank !== b.finalHand.handRank)
@@ -335,16 +387,13 @@ const DetermineWinner = (communityCards, playerHands) => {
     else {
       for (
         let i = 0;
-        i < a.finalHand.topCards.length && i < b.finalHand.topCards.length;
+        i < a.finalHand.top5.length && i < b.finalHand.top5.length;
         ++i
       ) {
-        const aCardRank = a.finalHand.topCards[i].split(" ")[0];
-        const bCardRank = b.finalHand.topCards[i].split(" ")[0];
+        const aCardRank = a.finalHand.top5[i].rank;
+        const bCardRank = b.finalHand.top5[i].rank;
         if (aCardRank !== bCardRank) {
-          return (
-            this.state.rankings.indexOf(aCardRank) -
-            this.state.rankings.indexOf(bCardRank)
-          );
+          return rankings.indexOf(aCardRank) - rankings.indexOf(bCardRank);
         }
       }
       // if we reach here, the top card rankings are the same i.e. the two
@@ -352,37 +401,36 @@ const DetermineWinner = (communityCards, playerHands) => {
       if (!rankMap.has(a.finalHand.handRank)) {
         rankMap.set(a.finalHand.handRank, new Set());
       }
-      rankMap.get(a.finalHand.handRank).add(a.index);
-      rankMap.get(b.finalHand.handRank).add(b.index);
+      rankMap.get(a.finalHand.handRank).add(a.playerIndex);
+      rankMap.get(b.finalHand.handRank).add(b.playerIndex);
 
       return 0;
     }
   });
-  // reset the winning percentages of all hands
-  for (let i = 0; i < playerHands.length; ++i) {
-    playerHands[i].percentage = 0;
-  }
-  // process the percentages based on the sorting done above
-  const rankOfHand = playersHandTypeArr[0].finalHand.handRank;
-  const indexOfHand = playersHandTypeArr[0].index;
 
+  const rankOfHand = playersHandTypeArr[0].finalHand.handRank;
+  const handType = playersHandTypeArr[0].finalHand.handType;
+  const indexOfHand = playersHandTypeArr[0].playerIndex;
+  const top5 = playersHandTypeArr[0].finalHand.top5
+    .map((card) => {
+      return card.rank + card.suit;
+    })
+    .join(", ");
   // index 0 of the array (playersHandTypeArr) is either the complete winner
   // or it is tied for first with other players
   if (!rankMap.has(rankOfHand) || !rankMap.get(rankOfHand).has(indexOfHand)) {
     // this player is the singular winner of the poker hand
-    playerHands[indexOfHand].percentage = 100;
+    console.log(`Player ${indexOfHand + 1} wins!`);
+    console.log(`Hand Type: ${handType}`);
+    console.log(`Top 5 Cards: ${top5}`);
   } else {
-    // the player index 0 is tied for first
-    const setOfPlayersWhoWon = rankMap.get(rankOfHand);
-    const numOfPlayers = setOfPlayersWhoWon.size;
-    for (const playerIndex of setOfPlayersWhoWon) {
-      playerHands[playerIndex].percentage = 100 / numOfPlayers;
-    }
+    let tiedPlayers = [...rankMap.get(rankOfHand)].sort().map((player) => {
+      return player + 1;
+    });
+    console.log(`Players ${tiedPlayers.join(", ")} have tied!`);
+    console.log(`Hand Type: ${handType}`);
+    console.log(`Top 5 Cards: ${top5}`);
   }
-
-  this.setState({
-    playerHands: playerHands,
-  });
 };
 
 export default DetermineWinner;
