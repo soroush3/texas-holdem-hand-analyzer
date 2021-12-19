@@ -1,5 +1,10 @@
 import "./App.css";
 import { useState, useEffect } from "react";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
+import Popper from "@mui/material/Popper";
+import Fade from "@mui/material/Fade";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import deckOfCards from "./utils/CardDeck.js";
 import CommunityCards from "./components/CommunityCards.js";
 import DeckOfCards from "./components/DeckOfCards.js";
@@ -16,13 +21,13 @@ function App() {
     { card1: null, card2: null },
   ]);
   const [winnerInfo, setWinnerInfo] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const updateFocusedCard = () => {
     for (let i = focusedCard.idx; i < focusedCard.idx + 5 + numPlayers; ++i) {
       const trueIdx = i % (5 + numPlayers);
       if (trueIdx <= 4) {
-        // position that was just updateded, skip it
-        // if (focusedCard.idx === trueIdx) continue;
         // community card
         if (communityCards[trueIdx] === null) {
           setFocusedCard({ idx: trueIdx, card: null });
@@ -55,13 +60,32 @@ function App() {
     setUsedCards(new Set());
     setFocusedCard({ idx: 0, card: null });
     setWinnerInfo(null);
+    setOpen(false);
     let newPlayerHands = [];
     for (let i = 0; i < numPlayers; ++i)
       newPlayerHands.push({ card1: null, card2: null });
     setPlayerHands(newPlayerHands);
   };
 
-  const handleCalculateClick = () => {
+  const handleCalculateClick = (event) => {
+    // check if community cards is complete (has 5 cards)
+    let cc_count = 0;
+    communityCards.forEach((card) => {
+      if (card !== null) ++cc_count;
+    });
+    // check that all player hands are complete (each hand has two cards)
+    let playerCount = 0;
+    playerHands.forEach((hand) => {
+      if (hand !== null && hand.card1 !== null && hand.card2 !== null)
+        ++playerCount;
+    });
+    if (cc_count !== 5 || playerCount !== playerHands.length) {
+      // display popper letting user know to fill out all cards
+      setAnchorEl(event.currentTarget);
+      setOpen(true);
+      return;
+    }
+
     const winnerInfo = DetermineWinner(communityCards, playerHands);
     setWinnerInfo(winnerInfo);
   };
@@ -185,12 +209,33 @@ function App() {
         <button onClick={() => handleReset()} style={{ marginLeft: 1 + "rem" }}>
           Reset
         </button>
-        <button
-          onClick={() => handleCalculateClick()}
-          style={{ marginLeft: 1 + "rem" }}
-        >
-          Calculate
-        </button>
+        {/* pop over shown if not all cards are filled */}
+        <ClickAwayListener onClickAway={() => setOpen(false)}>
+          <span>
+            <button
+              onClick={(e) => handleCalculateClick(e)}
+              style={{ marginLeft: 1 + "rem" }}
+            >
+              Calculate
+            </button>
+            <Popper
+              open={open}
+              anchorEl={anchorEl}
+              placement={"bottom"}
+              transition
+            >
+              {({ TransitionProps }) => (
+                <Fade {...TransitionProps} timeout={200}>
+                  <Paper>
+                    <Typography sx={{ p: 2 }}>
+                      Make sure all card slots are filled.
+                    </Typography>
+                  </Paper>
+                </Fade>
+              )}
+            </Popper>
+          </span>
+        </ClickAwayListener>
       </div>
 
       <div className="allCardsContainer">

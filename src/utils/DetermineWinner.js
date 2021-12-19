@@ -341,26 +341,6 @@ const determineHandType = (handOf7) => {
 };
 
 const DetermineWinner = (communityCards, playerHands) => {
-  // check if community cards is complete (has 5 cards)
-  let cc_count = 0;
-  communityCards.forEach((card) => {
-    if (card !== null) ++cc_count;
-  });
-  if (cc_count !== 5) {
-    alert("5 cards must be on the community board");
-    return null;
-  }
-  // check that all player hands are complete (each hand has two cards)
-  let playerCount = 0;
-  playerHands.forEach((hand) => {
-    if (hand !== null && hand.card1 !== null && hand.card2 !== null)
-      ++playerCount;
-  });
-
-  if (playerCount !== playerHands.length) {
-    alert("Make sure that all player hands are complete");
-    return null;
-  }
   // grab the needed state values
   const board = communityCards;
   const playersHandTypeArr = [];
