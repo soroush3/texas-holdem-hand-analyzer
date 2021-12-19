@@ -15,6 +15,7 @@ function App() {
     { card1: null, card2: null },
     { card1: null, card2: null },
   ]);
+  const [winnerInfo, setWinnerInfo] = useState(null);
 
   const updateFocusedCard = () => {
     for (let i = focusedCard.idx; i < focusedCard.idx + 5 + numPlayers; ++i) {
@@ -53,15 +54,16 @@ function App() {
     setCommunityCards(Array(5).fill(null));
     setUsedCards(new Set());
     setFocusedCard({ idx: 0, card: null });
-    setNumPlayers(2);
-    setPlayerHands([
-      { card1: null, card2: null },
-      { card1: null, card2: null },
-    ]);
+    setWinnerInfo(null);
+    let newPlayerHands = [];
+    for (let i = 0; i < numPlayers; ++i)
+      newPlayerHands.push({ card1: null, card2: null });
+    setPlayerHands(newPlayerHands);
   };
 
   const handleCalculateClick = () => {
-    DetermineWinner(communityCards, playerHands);
+    const winnerInfo = DetermineWinner(communityCards, playerHands);
+    setWinnerInfo(winnerInfo);
   };
 
   const updateNumberOfPlayers = (n) => {
@@ -190,6 +192,7 @@ function App() {
           Calculate
         </button>
       </div>
+
       <div className="allCardsContainer">
         <DeckOfCards
           deckOfCards={deckOfCards}
@@ -207,6 +210,28 @@ function App() {
             focusedCard={focusedCard}
             handlePlayerCardClick={handlePlayerCardClick}
           ></PlayerHands>
+
+          {/* winner information */}
+          {winnerInfo !== null ? (
+            <div>
+              <h3>{winnerInfo.whoWon}</h3>
+              <h3>{winnerInfo.handType}</h3>
+              <h3>Winning Hand:</h3>
+              <div className="winningHand">
+                {winnerInfo.top5.map((card, i) => {
+                  const rank = card.rank;
+                  const suit = card.suit;
+                  const color = ["♥︎", "♦︎"].includes(suit) ? "red" : "black";
+                  return (
+                    <div className={"miniCard"} key={"winningCard" + i}>
+                      <div>{rank}</div>
+                      <div style={{ color: color }}>{suit}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

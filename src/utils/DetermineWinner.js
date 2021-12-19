@@ -348,7 +348,7 @@ const DetermineWinner = (communityCards, playerHands) => {
   });
   if (cc_count !== 5) {
     alert("5 cards must be on the community board");
-    return;
+    return null;
   }
   // check that all player hands are complete (each hand has two cards)
   let playerCount = 0;
@@ -359,7 +359,7 @@ const DetermineWinner = (communityCards, playerHands) => {
 
   if (playerCount !== playerHands.length) {
     alert("Make sure that all player hands are complete");
-    return;
+    return null;
   }
   // grab the needed state values
   const board = communityCards;
@@ -372,7 +372,7 @@ const DetermineWinner = (communityCards, playerHands) => {
     const c2 = playerHands[i].card2;
     handOf7.push(c1, c2, ...board);
     // call function to determine the players Hand
-    // final hand: { 'handType': string, 'topCards': arr}
+    // final hand: { 'handType': string, handType: string, 'topCards': arr}
     const finalHand = determineHandType(handOf7);
     // add this information to an array for processing
     playersHandTypeArr.push({ finalHand: finalHand, playerIndex: i });
@@ -411,25 +411,31 @@ const DetermineWinner = (communityCards, playerHands) => {
   const rankOfHand = playersHandTypeArr[0].finalHand.handRank;
   const handType = playersHandTypeArr[0].finalHand.handType;
   const indexOfHand = playersHandTypeArr[0].playerIndex;
-  const top5 = playersHandTypeArr[0].finalHand.top5
-    .map((card) => {
-      return card.rank + card.suit;
-    })
-    .join(", ");
+  const top5 = playersHandTypeArr[0].finalHand.top5;
+
   // index 0 of the array (playersHandTypeArr) is either the complete winner
   // or it is tied for first with other players
   if (!rankMap.has(rankOfHand) || !rankMap.get(rankOfHand).has(indexOfHand)) {
     // this player is the singular winner of the poker hand
-    console.log(`Player ${indexOfHand + 1} wins!`);
-    console.log(`Hand Type: ${handType}`);
-    console.log(`Top 5 Cards: ${top5}`);
+    return {
+      whoWon: `Player ${indexOfHand + 1} wins!`,
+      top5: top5,
+      handType: handType,
+      playerHandsResult: playersHandTypeArr,
+    };
   } else {
     let tiedPlayers = [...rankMap.get(rankOfHand)].sort().map((player) => {
       return player + 1;
     });
-    console.log(`Players ${tiedPlayers.join(", ")} have tied!`);
-    console.log(`Hand Type: ${handType}`);
-    console.log(`Top 5 Cards: ${top5}`);
+    const whoWon = `Players ${tiedPlayers.slice(0, -1).join(", ")} and ${
+      tiedPlayers[tiedPlayers.length - 1]
+    } have tied!`;
+    return {
+      whoWon: whoWon,
+      top5: top5,
+      handType: handType,
+      playerHandsResult: playersHandTypeArr,
+    };
   }
 };
 

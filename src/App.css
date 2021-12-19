@@ -46,7 +46,8 @@
   align-items: center;
 }
 
-.communityBoard {
+.communityBoard,
+.winningHand {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -85,7 +86,6 @@
 
 .cardDeck {
   justify-content: center;
-  /* display: inline-block; */
   overflow: hidden;
   text-align: center;
   font-size: medium;
@@ -95,6 +95,20 @@
   margin: 5px;
   border-radius: 0.3cm;
   cursor: pointer;
+}
+
+.miniCard {
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+  font-size: medium;
+  border: 1px solid black;
+  width: 3rem;
+  height: 3rem;
+  margin: 5px;
+  border-radius: 0.3cm;
+  pointer-events: none;
+  user-select: none;
 }
 
 .communityCard {
