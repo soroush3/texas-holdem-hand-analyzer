@@ -189,9 +189,7 @@ function App() {
   return (
     <div className="App">
       <h1> TEXAS HOLDEM HAND ANALYZER</h1>
-      <h3>
-        Determines the % win of each hand based off of a complete poker hand
-      </h3>
+      <h3>Determines the winner based off of a complete poker hand</h3>
       <div style={{ margin: 1 + "rem" }}>
         <select
           value={numPlayers}
