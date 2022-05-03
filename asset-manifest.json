@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/texas-holdem-hand-analyzer/static/css/main.bea61f55.chunk.css",
-    "main.js": "/texas-holdem-hand-analyzer/static/js/main.67e62eb2.chunk.js",
-    "main.js.map": "/texas-holdem-hand-analyzer/static/js/main.67e62eb2.chunk.js.map",
+    "main.js": "/texas-holdem-hand-analyzer/static/js/main.eccbfa6d.chunk.js",
+    "main.js.map": "/texas-holdem-hand-analyzer/static/js/main.eccbfa6d.chunk.js.map",
     "runtime-main.js": "/texas-holdem-hand-analyzer/static/js/runtime-main.da0cd1f1.js",
     "runtime-main.js.map": "/texas-holdem-hand-analyzer/static/js/runtime-main.da0cd1f1.js.map",
     "static/js/2.a341b825.chunk.js": "/texas-holdem-hand-analyzer/static/js/2.a341b825.chunk.js",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.da0cd1f1.js",
     "static/js/2.a341b825.chunk.js",
     "static/css/main.bea61f55.chunk.css",
-    "static/js/main.67e62eb2.chunk.js"
+    "static/js/main.eccbfa6d.chunk.js"
   ]
 }
