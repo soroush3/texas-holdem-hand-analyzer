@@ -25,16 +25,19 @@ function App() {
   const [open, setOpen] = useState(false);
 
   const updateFocusedCard = () => {
-    for (let i = focusedCard.idx; i < focusedCard.idx + 5 + numPlayers; ++i) {
-      const trueIdx = i % (5 + numPlayers);
-      if (trueIdx <= 4) {
+    let i = focusedCard.idx > 5 + numPlayers ? 0 : focusedCard.idx;
+    for (; i < focusedCard.idx + 5 + numPlayers; ++i) {
+      const communityIdx = i % (5 + numPlayers);
+      if (communityIdx <= 4) {
+        console.log(communityIdx);
         // community card
-        if (communityCards[trueIdx] === null) {
-          setFocusedCard({ idx: trueIdx, card: null });
+        if (communityCards[communityIdx] === null) {
+          setFocusedCard({ idx: communityIdx, card: null });
           return;
         }
       } else {
-        const playerIdx = trueIdx - 5;
+        const playerIdx = communityIdx - 5;
+        console.log(playerIdx);
         // player card
         if (playerHands[playerIdx].card1 === null) {
           setFocusedCard({ idx: playerIdx + 5, card: 0 });
