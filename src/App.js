@@ -25,8 +25,11 @@ function App() {
   const [open, setOpen] = useState(false);
 
   const updateFocusedCard = () => {
-    let i = focusedCard.idx > 5 + numPlayers ? 0 : focusedCard.idx;
-    for (; i < focusedCard.idx + 5 + numPlayers; ++i) {
+    for (
+      let i = focusedCard.idx > 5 + numPlayers ? 0 : focusedCard.idx;
+      i < focusedCard.idx + 5 + numPlayers;
+      ++i
+    ) {
       const communityIdx = i % (5 + numPlayers);
       if (communityIdx <= 4) {
         // community card
@@ -70,16 +73,16 @@ function App() {
 
   const handleCalculateClick = (event) => {
     // check if community cards is complete (has 5 cards)
-    let cc_count = 0;
-    communityCards.forEach((card) => {
-      if (card !== null) ++cc_count;
-    });
+    const cc_count = communityCards.reduce((count, card) => {
+      return card !== null ? count + 1 : count;
+    }, 0);
     // check that all player hands are complete (each hand has two cards)
-    let playerCount = 0;
-    playerHands.forEach((hand) => {
-      if (hand !== null && hand.card1 !== null && hand.card2 !== null)
-        ++playerCount;
-    });
+    const playerCount = playerHands.reduce((count, hand) => {
+      return hand !== null && hand.card1 !== null && hand.card2 !== null
+        ? count + 1
+        : count;
+    }, 0);
+
     if (cc_count !== 5 || playerCount !== playerHands.length) {
       // display popper letting user know to fill out all cards
       setAnchorEl(event.currentTarget);
@@ -146,6 +149,7 @@ function App() {
       }
     }
   };
+
   const handleCommunityCardClick = (cardIndex) => {
     // check if there is a card already present in position, remove if true
     if (communityCards[cardIndex] !== null) {
@@ -240,14 +244,14 @@ function App() {
       <div className="allCardsContainer">
         <DeckOfCards
           deckOfCards={deckOfCards}
-          handleDeckClick={handleDeckClick}
           usedCards={usedCards}
+          handleDeckClick={handleDeckClick}
         />
         <div className="ccAndPlayer">
           <CommunityCards
             communityCards={communityCards}
-            handleCommunityCardClick={handleCommunityCardClick}
             focusedCard={focusedCard}
+            handleCommunityCardClick={handleCommunityCardClick}
           />
           <PlayerHands
             playerHands={playerHands}

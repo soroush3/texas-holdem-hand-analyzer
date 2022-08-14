@@ -16,6 +16,7 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
           <div key={"Player Hand " + i} className="playerHandContainer">
             <h4> {"Player " + (i + 1)} </h4>
             <div className="playerHand">
+              {/* first card */}
               <div
                 onClick={() => handlePlayerCardClick(i, 0)}
                 className={
@@ -28,7 +29,7 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
                   {card1 !== null ? card1.suit : ""}
                 </div>
               </div>
-
+              {/* second card */}
               <div
                 onClick={() => handlePlayerCardClick(i, 1)}
                 className={
