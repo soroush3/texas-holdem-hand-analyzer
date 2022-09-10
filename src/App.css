@@ -134,3 +134,14 @@
   border-radius: 0.3cm;
   cursor: pointer;
 }
+
+.topNav {
+  background-color: #333;
+  overflow: hidden;
+}
+
+.topNav button {
+  float: right;
+  text-align: center;
+  padding: 6px 8px;
+}
