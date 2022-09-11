@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/texas-holdem-hand-analyzer/static/css/main.67430116.chunk.css",
-    "main.js": "/texas-holdem-hand-analyzer/static/js/main.ce5d0741.chunk.js",
-    "main.js.map": "/texas-holdem-hand-analyzer/static/js/main.ce5d0741.chunk.js.map",
+    "main.css": "/texas-holdem-hand-analyzer/static/css/main.8b11e4a2.chunk.css",
+    "main.js": "/texas-holdem-hand-analyzer/static/js/main.f7926325.chunk.js",
+    "main.js.map": "/texas-holdem-hand-analyzer/static/js/main.f7926325.chunk.js.map",
     "runtime-main.js": "/texas-holdem-hand-analyzer/static/js/runtime-main.7beba705.js",
     "runtime-main.js.map": "/texas-holdem-hand-analyzer/static/js/runtime-main.7beba705.js.map",
-    "static/js/2.8ea0bf34.chunk.js": "/texas-holdem-hand-analyzer/static/js/2.8ea0bf34.chunk.js",
-    "static/js/2.8ea0bf34.chunk.js.map": "/texas-holdem-hand-analyzer/static/js/2.8ea0bf34.chunk.js.map",
+    "static/js/2.310f74c5.chunk.js": "/texas-holdem-hand-analyzer/static/js/2.310f74c5.chunk.js",
+    "static/js/2.310f74c5.chunk.js.map": "/texas-holdem-hand-analyzer/static/js/2.310f74c5.chunk.js.map",
     "index.html": "/texas-holdem-hand-analyzer/index.html",
-    "static/css/main.67430116.chunk.css.map": "/texas-holdem-hand-analyzer/static/css/main.67430116.chunk.css.map",
-    "static/js/2.8ea0bf34.chunk.js.LICENSE.txt": "/texas-holdem-hand-analyzer/static/js/2.8ea0bf34.chunk.js.LICENSE.txt",
+    "static/css/main.8b11e4a2.chunk.css.map": "/texas-holdem-hand-analyzer/static/css/main.8b11e4a2.chunk.css.map",
+    "static/js/2.310f74c5.chunk.js.LICENSE.txt": "/texas-holdem-hand-analyzer/static/js/2.310f74c5.chunk.js.LICENSE.txt",
     "static/media/Hand-Rankings-Upswing-Poker.2aa98204.jpg": "/texas-holdem-hand-analyzer/static/media/Hand-Rankings-Upswing-Poker.2aa98204.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.7beba705.js",
-    "static/js/2.8ea0bf34.chunk.js",
-    "static/css/main.67430116.chunk.css",
-    "static/js/main.ce5d0741.chunk.js"
+    "static/js/2.310f74c5.chunk.js",
+    "static/css/main.8b11e4a2.chunk.css",
+    "static/js/main.f7926325.chunk.js"
   ]
 }
