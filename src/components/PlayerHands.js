@@ -1,10 +1,12 @@
+import ReactTooltip from "react-tooltip";
+
 const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
   return (
     <div className="playerHandsContainer">
-      {playerHands.map((hand, i) => {
-        // const [showPlayerHandType, setShowPlayerHandType] = useState(false);
-        const card1 = hand.card1;
-        const card2 = hand.card2;
+      {playerHands.map((playerHand, i) => {
+        const card1 = playerHand.card1;
+        const card2 = playerHand.card2;
+        const info = playerHand.info;
         const hasFocus = focusedCard.idx !== null && focusedCard.idx - 5 === i;
         const redArr = ["♥︎", "♦︎"];
         const card1Color =
@@ -13,7 +15,39 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
           card2 !== null && redArr.includes(card2.suit) ? "red" : "black";
         return (
           <div key={"Player Hand " + i} className="playerHandContainer">
-            <h4> {"Player " + (i + 1)} </h4>
+            {/* tooltip for when player hand info is available, "Player x" is clickable */}
+            {info && (
+              <ReactTooltip
+                id={`playerHandInfo_${i}`}
+                effect="solid"
+                type="light"
+                className="opaque"
+              >
+                <h2 style={{ color: "black" }}>{info.handType}</h2>
+                <h3 style={{ color: "black" }}>Hand:</h3>
+                <div className="winningHand">
+                  {info.top5.map((card, i) => {
+                    const rank = card.rank;
+                    const suit = card.suit;
+                    const color = ["♥︎", "♦︎"].includes(suit) ? "red" : "black";
+                    return (
+                      <div className={"miniCard"} key={"winningCard" + i}>
+                        <div style={{ color: "black" }}>{rank}</div>
+                        <div style={{ color: color }}>{suit}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </ReactTooltip>
+            )}
+            <h4
+              // links tooltip to this header indicating which Player number
+              data-tip
+              data-for={`playerHandInfo_${i}`}
+              style={{ cursor: info ? "pointer" : null }}
+            >
+              {"Player " + (i + 1) + (info ? " ⓘ" : "")}
+            </h4>
             <div className="playerHand">
               {/* first card */}
               <div

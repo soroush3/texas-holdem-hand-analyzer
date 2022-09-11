@@ -8,7 +8,7 @@ import deckOfCards from "./utils/CardDeck.js";
 import CommunityCards from "./components/CommunityCards.js";
 import DeckOfCards from "./components/DeckOfCards.js";
 import PlayerHands from "./components/PlayerHands.js";
-import DetermineWinner from "./utils/DetermineWinner.js";
+import { DetermineWinner, getPlayerHandType } from "./utils/DetermineWinner.js";
 
 function TexasHoldem() {
   const [communityCards, setCommunityCards] = useState(Array(5).fill(null));
@@ -16,8 +16,8 @@ function TexasHoldem() {
   const [focusedCard, setFocusedCard] = useState({ idx: 0, card: null });
   const [numPlayers, setNumPlayers] = useState(2);
   const [playerHands, setPlayerHands] = useState([
-    { card1: null, card2: null },
-    { card1: null, card2: null },
+    { card1: null, card2: null, info: null },
+    { card1: null, card2: null, info: null },
   ]);
   const [winnerInfo, setWinnerInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -74,7 +74,7 @@ function TexasHoldem() {
     setShowCardErrorPopper(false);
     let newPlayerHands = [];
     for (let i = 0; i < numPlayers; ++i)
-      newPlayerHands.push({ card1: null, card2: null });
+      newPlayerHands.push({ card1: null, card2: null, info: null });
     setPlayerHands(newPlayerHands);
   };
 
@@ -98,6 +98,11 @@ function TexasHoldem() {
     }
 
     const winnerInfo = DetermineWinner(communityCards, playerHands);
+    const newPlayerHands = playerHands.map((playerHand) => {
+      const playerHandInfo = getPlayerHandType(communityCards, playerHand);
+      return { ...playerHand, info: playerHandInfo };
+    });
+    setPlayerHands(newPlayerHands);
     setWinnerInfo(winnerInfo);
   };
 
@@ -105,13 +110,18 @@ function TexasHoldem() {
     const nInt = parseInt(n);
     let newPlayerHands = [];
     for (let i = 0; i < nInt; ++i) {
-      newPlayerHands.push({ card1: null, card2: null });
+      newPlayerHands.push({ card1: null, card2: null, info: null });
     }
     let newUsedCards = new Set(usedCards);
     for (let i = 0; i < playerHands.length; ++i) {
       // keep these hands
       if (i < nInt) {
-        const hand = JSON.parse(JSON.stringify(playerHands[i]));
+        const playerHand = playerHands[i];
+        const hand = {
+          card1: playerHand.card1,
+          card2: playerHand.card2,
+          info: null,
+        };
         newPlayerHands[i] = hand;
       } else {
         // add the cards back to the deck
@@ -128,6 +138,7 @@ function TexasHoldem() {
     setNumPlayers(nInt);
     setUsedCards(newUsedCards);
     setPlayerHands(newPlayerHands);
+    setWinnerInfo(null);
   };
 
   const handleDeckClick = (deckIndex) => {
@@ -166,10 +177,17 @@ function TexasHoldem() {
       newCC[cardIndex] = null;
       setCommunityCards(newCC);
 
+      // update players winning info
+      const newPlayerHands = playerHands.map((playerHand) => {
+        return { card1: playerHand.card1, card2: playerHand.card2, info: null };
+      });
+
       // update used cards
       let newUsedCards = new Set(usedCards);
       newUsedCards.delete(cardPosition);
       setUsedCards(newUsedCards);
+      setWinnerInfo(null);
+      setPlayerHands(newPlayerHands);
     }
     setFocusedCard({ idx: cardIndex, card: null });
   };
@@ -180,7 +198,10 @@ function TexasHoldem() {
       (playerHands[playerIdx].card1 !== null && cardIdx === 0) ||
       (playerHands[playerIdx].card2 !== null && cardIdx === 1)
     ) {
-      let newPlayerHands = playerHands.map((hand) => ({ ...hand }));
+      let newPlayerHands = playerHands.map((playerHand) => ({
+        ...playerHand,
+        info: null,
+      }));
       let cardToAddBack = null;
       if (cardIdx === 0) {
         cardToAddBack = newPlayerHands[playerIdx].card1.position;
@@ -196,6 +217,7 @@ function TexasHoldem() {
       setPlayerHands(newPlayerHands);
     }
     setFocusedCard({ idx: playerIdx + 5, card: cardIdx });
+    setWinnerInfo(null);
   };
 
   return (

@@ -340,23 +340,20 @@ const determineHandType = (handOf7) => {
   return { handRank: 10, handType: handType, top5: handOf7.slice(0, 5) };
 };
 
+const getPlayerHandType = (communityCards, playerHand) => {
+  // consider the 7 cards for a player and their hand type
+  const handOf7 = [playerHand.card1, playerHand.card2, ...communityCards];
+  return determineHandType(handOf7);
+};
+
 const DetermineWinner = (communityCards, playerHands) => {
-  // grab the needed state values
-  const board = communityCards;
-  const playersHandTypeArr = [];
-  // iterate through each players hands
-  for (let i = 0; i < playerHands.length; ++i) {
-    // grab the 5 cards on the board and the players 2 card hand
-    let handOf7 = [];
-    const c1 = playerHands[i].card1;
-    const c2 = playerHands[i].card2;
-    handOf7.push(c1, c2, ...board);
-    // call function to determine the players Hand
-    // final hand: { 'handType': string, handType: string, 'topCards': arr}
-    const finalHand = determineHandType(handOf7);
-    // add this information to an array for processing
-    playersHandTypeArr.push({ finalHand: finalHand, playerIndex: i });
-  }
+  // transform player hands to player hand type
+  const playersHandTypeArr = playerHands.map((playerHand, idx) => {
+    return {
+      finalHand: getPlayerHandType(communityCards, playerHand),
+      playerIndex: idx,
+    };
+  });
   // sort the array based on hand rank, break ties by comparing the
   // top cards from each persons hand
   // key = hand type, val = player index
@@ -419,4 +416,4 @@ const DetermineWinner = (communityCards, playerHands) => {
   }
 };
 
-export default DetermineWinner;
+export { DetermineWinner, getPlayerHandType };

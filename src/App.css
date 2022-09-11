@@ -148,3 +148,7 @@
   font-weight: bold;
   color: rgb(13, 142, 240);
 }
+
+.opaque {
+  opacity: 1 !important;
+}
