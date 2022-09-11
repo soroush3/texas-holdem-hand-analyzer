@@ -1,12 +1,12 @@
 # Texas Hold'em Hand Analyzer (ReactJS)
 
 Have you ever been playing texas hold'em with your friends and at the end of a particular hand
-there was a dispute on who won the hand?
+there was a dispute over who won?
 
 Look no further! With this react application, you can input the cards of the completed hand and
-determine the winner(s) and the type of hand that they had.
+determine the winner(s) and the type of hand for each player.
 
-The application takes in 5 cards as the community board and mulitple
+The application takes in 5 cards for the community board and mulitple
 player hands from the remaining cards to determine the correct winner(s).
 
 ## Link to access application

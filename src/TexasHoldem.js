@@ -1,5 +1,4 @@
-import "./App.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Popper from "@mui/material/Popper";
 import Fade from "@mui/material/Fade";
@@ -22,7 +21,7 @@ function TexasHoldem() {
   ]);
   const [winnerInfo, setWinnerInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [open, setOpen] = useState(false);
+  const [showCardErrorPopper, setShowCardErrorPopper] = useState(false);
 
   const updateFocusedCard = () => {
     for (
@@ -53,18 +52,26 @@ function TexasHoldem() {
     setFocusedCard({ idx: null, card: null });
   };
 
+  const prevUsedCardsLen = useRef(usedCards.size);
+  const prevNumberOfPlayers = useRef(numPlayers);
   useEffect(() => {
-    // only update the focused card if the usedCards is changed or numplayers is changed
-    updateFocusedCard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [usedCards, numPlayers]);
+    // only update the focused card if the usedCards len has become larger or numplayers has changed
+    if (
+      prevUsedCardsLen.current < usedCards.size ||
+      prevNumberOfPlayers.current !== numPlayers
+    ) {
+      updateFocusedCard();
+    }
+    prevUsedCardsLen.current = usedCards.size;
+    prevNumberOfPlayers.current = numPlayers;
+  });
 
   const handleReset = () => {
     setCommunityCards(Array(5).fill(null));
     setUsedCards(new Set());
     setFocusedCard({ idx: 0, card: null });
     setWinnerInfo(null);
-    setOpen(false);
+    setShowCardErrorPopper(false);
     let newPlayerHands = [];
     for (let i = 0; i < numPlayers; ++i)
       newPlayerHands.push({ card1: null, card2: null });
@@ -86,7 +93,7 @@ function TexasHoldem() {
     if (cc_count !== 5 || playerCount !== playerHands.length) {
       // display popper letting user know to fill out all cards
       setAnchorEl(event.currentTarget);
-      setOpen(true);
+      setShowCardErrorPopper(true);
       return;
     }
 
@@ -193,7 +200,7 @@ function TexasHoldem() {
 
   return (
     <div className="App">
-      <h1> TEXAS HOLDEM HAND ANALYZER</h1>
+      <h1> TEXAS HOLD'EM HAND ANALYZER</h1>
       <h3>Determines the winner based off of a complete poker hand</h3>
       <div style={{ margin: 1 + "rem" }}>
         <select
@@ -213,7 +220,7 @@ function TexasHoldem() {
           Reset
         </button>
         {/* pop over shown if not all cards are filled */}
-        <ClickAwayListener onClickAway={() => setOpen(false)}>
+        <ClickAwayListener onClickAway={() => setShowCardErrorPopper(false)}>
           <span>
             <button
               onClick={(e) => handleCalculateClick(e)}
@@ -222,7 +229,7 @@ function TexasHoldem() {
               Calculate
             </button>
             <Popper
-              open={open}
+              open={showCardErrorPopper}
               anchorEl={anchorEl}
               placement={"bottom"}
               transition
@@ -262,8 +269,8 @@ function TexasHoldem() {
           {/* winner information */}
           {winnerInfo !== null ? (
             <div>
-              <h3>{winnerInfo.whoWon}</h3>
-              <h3>{winnerInfo.handType}</h3>
+              <h1>{winnerInfo.whoWon}</h1>
+              <h2>{winnerInfo.handType}</h2>
               <h3>Winning Hand:</h3>
               <div className="winningHand">
                 {winnerInfo.top5.map((card, i) => {

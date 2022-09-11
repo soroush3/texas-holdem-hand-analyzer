@@ -140,8 +140,11 @@
   overflow: hidden;
 }
 
-.topNav button {
+.topNav .navItem {
   float: right;
   text-align: center;
   padding: 6px 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: rgb(13, 142, 240);
 }

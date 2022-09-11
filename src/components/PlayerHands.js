@@ -1,9 +1,8 @@
-import React from "react";
-
 const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
   return (
     <div className="playerHandsContainer">
       {playerHands.map((hand, i) => {
+        // const [showPlayerHandType, setShowPlayerHandType] = useState(false);
         const card1 = hand.card1;
         const card2 = hand.card2;
         const hasFocus = focusedCard.idx !== null && focusedCard.idx - 5 === i;

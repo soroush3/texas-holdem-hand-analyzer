@@ -1,5 +1,4 @@
 import "./App.css";
-import { useState, useEffect } from "react";
 import TexasHoldem from "./TexasHoldem";
 
 import ModalImage from "react-modal-image";
@@ -9,9 +8,11 @@ function App() {
   return (
     <div className="App">
       <div className="topNav">
-        <button>
-          <ModalImage alt="Poker Hand Rankings" medium={HandRankings} />
-        </button>
+        <ModalImage
+          className="navItem"
+          alt="Poker Hand Rankings"
+          medium={HandRankings}
+        />
       </div>
       <TexasHoldem />
     </div>
