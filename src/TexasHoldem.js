@@ -23,6 +23,12 @@ function TexasHoldem() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [showCardErrorPopper, setShowCardErrorPopper] = useState(false);
 
+  /**
+   * Changes the focused card by finding the first available slot.
+   * Prioritizes its search from its previous location. i.e., if previous location is from the
+   * community cards board, it will search there first before going on to player hands and
+   * vice versa.
+   */
   const updateFocusedCard = () => {
     for (
       let i = focusedCard.idx > 5 + numPlayers ? 0 : focusedCard.idx;
@@ -60,6 +66,7 @@ function TexasHoldem() {
       prevUsedCardsLen.current < usedCards.size ||
       prevNumberOfPlayers.current !== numPlayers
     ) {
+      // only called in useEffect as the card states need to be updated before updating the focused card
       updateFocusedCard();
     }
     prevUsedCardsLen.current = usedCards.size;
@@ -78,6 +85,9 @@ function TexasHoldem() {
     setPlayerHands(newPlayerHands);
   };
 
+  /**
+   * Determines the winner of the hand and sets winner and player hand information.
+   */
   const handleCalculateClick = (event) => {
     // check if community cards is complete (has 5 cards)
     const cc_count = communityCards.reduce((count, card) => {
@@ -89,7 +99,7 @@ function TexasHoldem() {
         ? count + 1
         : count;
     }, 0);
-
+    // not all community and player cards selected
     if (cc_count !== 5 || playerCount !== playerHands.length) {
       // display popper letting user know to fill out all cards
       setAnchorEl(event.currentTarget);
@@ -106,6 +116,10 @@ function TexasHoldem() {
     setWinnerInfo(winnerInfo);
   };
 
+  /**
+   * Updates the number of players. When the number of players is reduced and those players
+   * had cards, they are returned to the deck.
+   */
   const updateNumberOfPlayers = (n) => {
     const nInt = parseInt(n);
     let newPlayerHands = [];
@@ -141,6 +155,9 @@ function TexasHoldem() {
     setWinnerInfo(null);
   };
 
+  /**
+   * The card clicked from the deck is moved to the focused card position
+   */
   const handleDeckClick = (deckIndex) => {
     if (!usedCards.has(deckIndex) && focusedCard.idx !== null) {
       // update used cards set
@@ -168,6 +185,10 @@ function TexasHoldem() {
     }
   };
 
+  /**
+   * Changes the focused card to the index of the community card board.
+   * If there was a card in that position, it is removed and added back to the deck.
+   */
   const handleCommunityCardClick = (cardIndex) => {
     // check if there is a card already present in position, remove if true
     if (communityCards[cardIndex] !== null) {
@@ -192,6 +213,10 @@ function TexasHoldem() {
     setFocusedCard({ idx: cardIndex, card: null });
   };
 
+  /**
+   * Changes the focused card to the index of the player card.
+   * If there was a card in that position, it is removed and added back to the deck.
+   */
   const handlePlayerCardClick = (playerIdx, cardIdx) => {
     // check if there is a card already present in position, remove if true
     if (

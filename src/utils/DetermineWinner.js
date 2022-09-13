@@ -288,55 +288,55 @@ const determineHandType = (handOf7) => {
   top5 = isStraightFlush(handOf7);
   if (top5.length) {
     const highRank = top5[0].rank;
-    const handType = `Straight Flush, ${highRank} High`;
+    const handType = `Straight Flush: ${highRank} High`;
     return { handRank: 2, handType: handType, top5: top5 };
   }
   top5 = isFourOfAKind(handOf7);
   if (top5.length) {
     const highRank = top5[0].rank;
-    const handType = `Four Of A Kind, ${highRank}'s`;
+    const handType = `Four Of A Kind: ${highRank}'s`;
     return { handRank: 3, handType: handType, top5: top5 };
   }
   top5 = isFullHouse(handOf7);
   if (top5.length) {
     const threeRank = top5[0].rank;
     const twoRank = top5[top5.length - 1].rank;
-    const handType = `Full House, ${threeRank}'s Full Of ${twoRank}'s `;
+    const handType = `Full House: ${threeRank}'s Full Of ${twoRank}'s `;
     return { handRank: 4, handType: handType, top5: top5 };
   }
   top5 = isFlush(handOf7);
   if (top5.length) {
     const handRank = top5[0].rank;
-    const handType = `Flush, ${handRank} High`;
+    const handType = `Flush: ${handRank} High`;
     return { handRank: 5, handType: handType, top5: top5 };
   }
   top5 = isStraight(handOf7);
   if (top5.length) {
     const handRank = top5[0].rank;
-    const handType = `Straight, ${handRank} High`;
+    const handType = `Straight: ${handRank} High`;
     return { handRank: 6, handType: handType, top5: top5 };
   }
   top5 = isThreeOfAKind(handOf7);
   if (top5.length) {
     const handRank = top5[0].rank;
-    const handType = `Three Of A Kind, ${handRank}'s`;
+    const handType = `Three Of A Kind: ${handRank}'s`;
     return { handRank: 7, handType: handType, top5: top5 };
   }
   top5 = isTwoPair(handOf7);
   if (top5.length) {
     const firstPairRank = top5[0].rank;
     const secondPairRank = top5[2].rank;
-    const handType = `Two Pair, ${firstPairRank}'s And ${secondPairRank}'s`;
+    const handType = `Two Pair: ${firstPairRank}'s And ${secondPairRank}'s`;
     return { handRank: 8, handType: handType, top5: top5 };
   }
   top5 = isPair(handOf7);
   if (top5.length) {
     const pairRank = top5[0].rank;
-    const handType = `Pair, ${pairRank}'s`;
+    const handType = `Pair: ${pairRank}'s`;
     return { handRank: 9, handType: handType, top5: top5 };
   }
   // high card
-  const handType = `High Card, ${handOf7[0].rank} High`;
+  const handType = `High Card: ${handOf7[0].rank} High`;
   return { handRank: 10, handType: handType, top5: handOf7.slice(0, 5) };
 };
 

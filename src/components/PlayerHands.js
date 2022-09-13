@@ -15,12 +15,13 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
           card2 !== null && redArr.includes(card2.suit) ? "red" : "black";
         return (
           <div key={"Player Hand " + i} className="playerHandContainer">
-            {/* tooltip for when player hand info is available, "Player x" is clickable */}
+            {/* tooltip for when player hand info is available, "Player x" is hoverable */}
             {info && (
               <ReactTooltip
                 id={`playerHandInfo_${i}`}
                 effect="solid"
                 type="light"
+                place="left"
                 className="opaque"
               >
                 <h2 style={{ color: "black" }}>{info.handType}</h2>
