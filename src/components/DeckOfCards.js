@@ -1,6 +1,7 @@
 import React from "react";
+import deckOfCards from "../utils/CardDeck";
 
-const DeckOfCards = ({ deckOfCards, handleDeckClick, usedCards }) => {
+const DeckOfCards = ({ handleDeckClick, usedCards }) => {
   return (
     <div className="deckOfCards">
       <h3>Deck of Cards</h3>
