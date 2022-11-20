@@ -52,10 +52,12 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
             <div className="playerHand">
               {/* first card */}
               <div
-                onClick={() => handlePlayerCardClick(i, 0)}
+                onClick={() => handlePlayerCardClick(i, "card1")}
                 className={
                   "playerCard" +
-                  (hasFocus && focusedCard.card === 0 ? " focusedCard" : "")
+                  (hasFocus && focusedCard.card === "card1"
+                    ? " focusedCard"
+                    : "")
                 }
               >
                 <div> {card1 !== null ? card1.rank : ""} </div>
@@ -65,10 +67,12 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
               </div>
               {/* second card */}
               <div
-                onClick={() => handlePlayerCardClick(i, 1)}
+                onClick={() => handlePlayerCardClick(i, "card2")}
                 className={
                   "playerCard" +
-                  (hasFocus && focusedCard.card === 1 ? " focusedCard" : "")
+                  (hasFocus && focusedCard.card === "card2"
+                    ? " focusedCard"
+                    : "")
                 }
               >
                 <div> {card2 !== null ? card2.rank : ""} </div>
