@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/texas-holdem-hand-analyzer/static/css/main.0bf236a7.css",
-    "main.js": "/texas-holdem-hand-analyzer/static/js/main.b53ef6aa.js",
+    "main.js": "/texas-holdem-hand-analyzer/static/js/main.a44392b1.js",
     "static/media/Hand-Rankings-Upswing-Poker.jpg": "/texas-holdem-hand-analyzer/static/media/Hand-Rankings-Upswing-Poker.2aa982040b0084473078.jpg",
     "index.html": "/texas-holdem-hand-analyzer/index.html",
     "main.0bf236a7.css.map": "/texas-holdem-hand-analyzer/static/css/main.0bf236a7.css.map",
-    "main.b53ef6aa.js.map": "/texas-holdem-hand-analyzer/static/js/main.b53ef6aa.js.map"
+    "main.a44392b1.js.map": "/texas-holdem-hand-analyzer/static/js/main.a44392b1.js.map"
   },
   "entrypoints": [
     "static/css/main.0bf236a7.css",
-    "static/js/main.b53ef6aa.js"
+    "static/js/main.a44392b1.js"
   ]
 }
