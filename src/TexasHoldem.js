@@ -42,7 +42,7 @@ function TexasHoldem() {
     }
     prevUsedCardsLen.current = usedCards.size;
     prevNumberOfPlayers.current = numPlayers;
-  });
+  }, [usedCards.size, numPlayers, focusedCard, communityCards, playerHands]);
 
   const handleReset = () => {
     setCommunityCards(Array(5).fill(null));
@@ -98,29 +98,24 @@ function TexasHoldem() {
    * The card clicked from the deck is moved to the focused card position
    */
   const handleDeckClick = (deckIndex) => {
-    if (!usedCards.has(deckIndex) && focusedCard.idx !== null) {
-      // update used cards set
-      let newUsedCards = new Set(usedCards);
-      newUsedCards.add(deckIndex);
-      setUsedCards(newUsedCards);
+    if (usedCards.has(deckIndex) || focusedCard.idx === null) return;
+    // update used cards set
+    let newUsedCards = new Set(usedCards);
+    newUsedCards.add(deckIndex);
+    setUsedCards(newUsedCards);
 
-      // update community card
-      if (focusedCard.idx <= 4) {
-        let newCC = [...communityCards];
-        newCC[focusedCard.idx] = deckOfCards[deckIndex];
-        setCommunityCards(newCC);
-      }
-      // update player card
-      else {
-        let newPlayerHands = playerHands.map((hand) => ({ ...hand }));
-        const playerIdx = focusedCard.idx - 5;
-        if (focusedCard.card === 0) {
-          newPlayerHands[playerIdx].card1 = deckOfCards[deckIndex];
-        } else if (focusedCard.card === 1) {
-          newPlayerHands[playerIdx].card2 = deckOfCards[deckIndex];
-        }
-        setPlayerHands(newPlayerHands);
-      }
+    // update community card
+    if (focusedCard.idx <= 4) {
+      let newCC = [...communityCards];
+      newCC[focusedCard.idx] = deckOfCards[deckIndex];
+      setCommunityCards(newCC);
+    }
+    // update player card
+    else {
+      let newPlayerHands = playerHands.map((hand) => ({ ...hand }));
+      const playerIdx = focusedCard.idx - 5;
+      newPlayerHands[playerIdx][focusedCard.card] = deckOfCards[deckIndex];
+      setPlayerHands(newPlayerHands);
     }
   };
 
@@ -156,31 +151,22 @@ function TexasHoldem() {
    * Changes the focused card to the index of the player card.
    * If there was a card in that position, it is removed and added back to the deck.
    */
-  const handlePlayerCardClick = (playerIdx, cardIdx) => {
+  const handlePlayerCardClick = (playerIdx, card) => {
     // check if there is a card already present in position, remove if true
-    if (
-      (playerHands[playerIdx].card1 !== null && cardIdx === 0) ||
-      (playerHands[playerIdx].card2 !== null && cardIdx === 1)
-    ) {
+    if (playerHands[playerIdx][card] !== null) {
       let newPlayerHands = playerHands.map((playerHand) => ({
         ...playerHand,
         info: null,
       }));
-      let cardToAddBack = null;
-      if (cardIdx === 0) {
-        cardToAddBack = newPlayerHands[playerIdx].card1.position;
-        newPlayerHands[playerIdx].card1 = null;
-      } else if (cardIdx === 1) {
-        cardToAddBack = newPlayerHands[playerIdx].card2.position;
-        newPlayerHands[playerIdx].card2 = null;
-      }
+      let cardToAddBack = newPlayerHands[playerIdx][card].position;
+      newPlayerHands[playerIdx][card] = null;
       // remove the card deckIndex as being used
       let newUsedCards = new Set(usedCards);
       newUsedCards.delete(cardToAddBack);
       setUsedCards(newUsedCards);
       setPlayerHands(newPlayerHands);
     }
-    setFocusedCard({ idx: playerIdx + 5, card: cardIdx });
+    setFocusedCard({ idx: playerIdx + 5, card: card });
     setWinnerInfo(null);
   };
 
@@ -191,7 +177,7 @@ function TexasHoldem() {
       <div style={{ margin: 1 + "rem" }}>
         <select
           value={numPlayers}
-          onChange={(e) => updateNumberOfPlayers(e.target.value)}
+          onChange={(e) => updateNumberOfPlayers(parseInt(e.target.value))}
           style={{ marginRight: 1 + "rem" }}
         >
           {[2, 3, 4, 5, 6, 7, 8].map((n) => {
@@ -285,11 +271,7 @@ const getNewFocusedCard = ({
   communityCards,
   playerHands,
 }) => {
-  for (
-    let i = focusedCard.idx > 5 + numPlayers ? 0 : focusedCard.idx;
-    i < focusedCard.idx + 5 + numPlayers;
-    ++i
-  ) {
+  for (let i = focusedCard.idx; i < focusedCard.idx + 5 + numPlayers; ++i) {
     const communityIdx = i % (5 + numPlayers);
     if (communityIdx <= 4) {
       // community card
@@ -300,9 +282,9 @@ const getNewFocusedCard = ({
       const playerIdx = communityIdx - 5;
       // player card
       if (playerHands[playerIdx].card1 === null) {
-        return { idx: playerIdx + 5, card: 0 };
+        return { idx: playerIdx + 5, card: "card1" };
       } else if (playerHands[playerIdx].card2 === null) {
-        return { idx: playerIdx + 5, card: 1 };
+        return { idx: playerIdx + 5, card: "card2" };
       }
     }
   }

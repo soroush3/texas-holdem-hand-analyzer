@@ -13,7 +13,9 @@ const DeckOfCards = ({ handleDeckClick, usedCards }) => {
         const isDisabled = usedCards.has(i);
         return (
           <div
-            onClick={() => handleDeckClick(i)}
+            onClick={() => {
+              handleDeckClick(i);
+            }}
             key={i}
             className={"cardDeck" + (isDisabled ? " disabledCard" : "")}
           >
