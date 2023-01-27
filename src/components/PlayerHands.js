@@ -20,8 +20,8 @@ const PlayerHands = ({ playerHands, focusedCard, handlePlayerCardClick }) => {
               <ReactTooltip
                 id={`playerHandInfo_${i}`}
                 effect="solid"
-                type="info"
                 place="left"
+                backgroundColor="darkgray"
                 className="opaque"
               >
                 <h2 style={{ color: "black" }}>{info.handType}</h2>
