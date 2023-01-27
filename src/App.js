@@ -8,6 +8,15 @@ function App() {
   return (
     <div className="App">
       <div className="topNav">
+        <a
+          className="navItem"
+          href="https://github.com/soroush3/texas-holdem-hand-analyzer"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none" }}
+        >
+          Github Repo
+        </a>
         <ModalImage
           className="navItem"
           alt="Poker Hand Rankings"
